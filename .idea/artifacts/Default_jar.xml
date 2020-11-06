@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Default:jar">
-    <output-path>$PROJECT_DIR$/builds/</output-path>
-    <root id="archive" name="WorldsOrganizer.jar">
-      <element id="module-output" name="WorldsOrganizer" />
-    </root>
-  </artifact>
-</component>
