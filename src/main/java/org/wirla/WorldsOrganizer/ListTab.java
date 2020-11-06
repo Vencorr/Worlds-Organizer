@@ -134,7 +134,7 @@ public class ListTab {
 					openedList.remove(index);
 					value.remove(index);
 					if (index >= 1) {
-						if (index < value.getItemCount()) value.setSelection(index);
+						if (index <= value.getItemCount()) value.setSelection(index);
 						else value.setSelection(index - 1);
 					}
 					else value.setSelection(0);
@@ -264,7 +264,7 @@ public class ListTab {
 			labelEntry.setText(openedList.get(value.getSelectionIndex()).label);
 			valueEntry.setEnabled(true);
 			valueEntry.setText(openedList.get(value.getSelectionIndex()).value);
-		} catch (ArrayIndexOutOfBoundsException e) {
+		} catch (IndexOutOfBoundsException e) {
 			labelEntry.setEnabled(false);
 			labelEntry.setText("");
 			valueEntry.setEnabled(false);
