@@ -10,6 +10,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +22,43 @@ public class Main {
 
 	static List<ListTab> valuePages = new ArrayList<>();
 
+	static List<String> preFiles;
+
 	static CTabFolder ctf;
 
 	public static void main(String[] args) {
-		System.out.println("Running version " + Detail.getVersion());
-		initWindow();
+		boolean start = true;
+		System.out.println("Worlds Organizer " + Detail.getVersion());
+		preFiles = new ArrayList<String>();
+
+		// Argument Handling
+		if (args.length > 0) {
+			System.out.println("Build Date: " + Detail.getDate());
+
+			for (int a = 0; a < args.length; a++) {
+				switch (args[a]) {
+					case "-i":
+						try {
+							if (new File(args[a+1]).exists()) {
+								preFiles.add(args[a+1]);
+								a++;
+							} else throw new IOException();
+						} catch (IOException ioe) {
+							System.out.println(args[a+1] + " is not a valid file!");
+							System.out.println("java -jar WorldsOrganizer.jar -i <FILE>");
+						}
+						break;
+					case "-h": case "--help":
+						start = false;
+						System.out.println("  -h, --help                  Show this help output.");
+						System.out.println("  -i                          Input files to open with.");
+						System.out.println();
+						System.out.println("This software is in Beta stage! Bugs are expected!");
+						break;
+				}
+			}
+		}
+		if (start) initWindow();
 	}
 
 	static void initWindow() {
@@ -203,6 +236,12 @@ public class Main {
 		// Finalize and open the shell
 		shell.setMenuBar(menuBar);
 		shell.open();
+
+		if (preFiles.size() > 0) {
+			for (String arg : preFiles) {
+				openFile(arg);
+			}
+		}
 
 		// Main Loop
 		while (!shell.isDisposed()) {
