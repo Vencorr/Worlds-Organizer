@@ -61,7 +61,7 @@ public class AboutDialog {
 					URI oURL = new URI("https://wirlaburla.site/library/WorldsPlayer/tools/WorldsOrganizer/index.html");
 					desktop.browse(oURL);
 				} catch (Exception e) {
-					Main.error("Couldn't open the webpage.", SWT.ICON_ERROR);
+					Main.error("Couldn't open the webpage.");
 				}
 			}
 			@Override

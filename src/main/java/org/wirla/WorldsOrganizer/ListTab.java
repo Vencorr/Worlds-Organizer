@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class ListTab {
 
-	protected java.util.List<WObject> origList;
+	protected java.util.List<WorldDataObject> origList;
 
 	String type;
 	CTabFolder ctf;
@@ -36,7 +36,7 @@ public class ListTab {
 
 	boolean hasChanged = false;
 
-	java.util.List<WObject> openedList = new ArrayList<>();
+	java.util.List<WorldDataObject> openedList = new ArrayList<>();
 
 	ListTab(CTabFolder ctf) { this.ctf = ctf; }
 
@@ -111,7 +111,7 @@ public class ListTab {
 		addItem.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent selectionEvent) {
-				WObject newWO = new WObject(type, 1, "Object " + (value.getItemCount() + 1), "");
+				WorldDataObject newWO = new WorldDataObject(type, 1, "Object " + (value.getItemCount() + 1), "");
 				openedList.add(newWO);
 				value.add(newWO.label);
 				value.setSelection(value.getItemCount() - 1);
@@ -155,7 +155,7 @@ public class ListTab {
 			public void widgetSelected(SelectionEvent selectionEvent) {
 				int index = value.getSelectionIndex();
 				if (index > 0) {
-					WObject item = openedList.get(index);
+					WorldDataObject item = openedList.get(index);
 					openedList.remove(index);
 					value.remove(index);
 					openedList.add(index - 1, item);
@@ -178,7 +178,7 @@ public class ListTab {
 			public void widgetSelected(SelectionEvent selectionEvent) {
 				int index = value.getSelectionIndex();
 				if (index >= 0 && index < openedList.size() - 1) {
-					WObject item = openedList.get(index);
+					WorldDataObject item = openedList.get(index);
 					openedList.remove(index);
 					value.remove(index);
 					openedList.add(index + 1, item);
@@ -218,7 +218,7 @@ public class ListTab {
 		labelEntry.addModifyListener(modifyEvent -> {
 			int index = value.getSelectionIndex();
 			if (value.getSelection() != null && index >= 0) {
-				WObject WO = openedList.get(index);
+				WorldDataObject WO = openedList.get(index);
 				WO.label = labelEntry.getText();
 				value.setItem(index, labelEntry.getText());
 				if (labelEntry.isFocusControl()) hasChanged = true;
@@ -234,7 +234,7 @@ public class ListTab {
 		valueEntry.addModifyListener(modifyEvent -> {
 			int index = value.getSelectionIndex();
 			if (value.getSelection() != null && index >= 0) {
-				WObject WO = openedList.get(index);
+				WorldDataObject WO = openedList.get(index);
 				WO.value = valueEntry.getText();
 				if (valueEntry.isFocusControl()) hasChanged = true;
 			}
@@ -279,7 +279,7 @@ public class ListTab {
 
 	void loadFile() throws InvalidPersisterFile, IOException {
 		openedList = new Restorer(path).getValues();
-		for (WObject wo : openedList) {
+		for (WorldDataObject wo : openedList) {
 			value.add(wo.label);
 			type = wo.type;
 		}
@@ -297,7 +297,7 @@ public class ListTab {
 		return openedList == origList;
 	}
 
-	java.util.List<WObject> getOriginal() {
+	java.util.List<WorldDataObject> getOriginal() {
 		return origList;
 	}
 

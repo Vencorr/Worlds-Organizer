@@ -22,7 +22,7 @@ public class Restorer {
 		}
 	}
 
-	List<WObject> getValues() throws IOException, InvalidPersisterFile {
+	List<WorldDataObject> getValues() throws IOException, InvalidPersisterFile {
 		if (dis == null) {
 			throw new InvalidPersisterFile();
 		}
@@ -45,20 +45,20 @@ public class Restorer {
 		}
 	}
 
-	private List<WObject> readVector(int count) throws IOException {
+	private List<WorldDataObject> readVector(int count) throws IOException {
 		System.out.println("Starting Read of " + path);
 
-		List<WObject> vList = new ArrayList<WObject>(count);
+		List<WorldDataObject> vList = new ArrayList<WorldDataObject>(count);
 
 		oID = readInt(); // Object ID
 		String type = readString(); // Class Name
-		if (type.equals("NET.worlds.console.SavedAvMenuItem") || type.equals("NET.worlds.console.BookmarkMenuItem")) {
-			System.out.println("Detected as supported class 'SavedAvMenuItem' or 'BookmarkMenuItem'.");
+		if (WorldDataObject.isType(type)) {
+			System.out.println("Detected as supported class. Continuing.");
 
 			for (int i = 0; i < count; i++) {
 				if (i > 0) readInt();
 				int version = readInt();
-				WObject curW = new WObject(type, version, readString(), readString());
+				WorldDataObject curW = new WorldDataObject(type, version, readString(), readString());
 				vList.add(curW);
 			}
 			assert readString().equals("END PERSISTER");

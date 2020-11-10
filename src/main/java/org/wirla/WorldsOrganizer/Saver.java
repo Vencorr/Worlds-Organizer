@@ -25,32 +25,13 @@ public class Saver {
 		writeInt(7); // Persister version
 	}
 
-	public void saveAvatars(List<WObject> objects) throws IOException {
+	public void save(List<WorldDataObject> objects, String type) throws IOException {
 		int count = objects.size();
 		writeInt(count);
 		writeInt(459);
 		int objID = 8782;
 		writeInt(objID);
-		writeString("NET.worlds.console.SavedAvMenuItem");
-		for (int i = 0; i < count; i++) {
-			if (i > 0) {
-				writeInt(460 + i);
-				writeInt(objID);
-			}
-			else writeInt(1);
-			writeString(objects.get(i).label);
-			writeString(objects.get(i).value);
-		}
-		writeString("END PERSISTER");
-	}
-
-	public void saveMark(List<WObject> objects) throws IOException {
-		int count = objects.size();
-		writeInt(count);
-		writeInt(459);
-		int objID = 8782;
-		writeInt(objID);
-		writeString("NET.worlds.console.BookmarkMenuItem");
+		writeString(type);
 		for (int i = 0; i < count; i++) {
 			if (i > 0) {
 				writeInt(460 + i);

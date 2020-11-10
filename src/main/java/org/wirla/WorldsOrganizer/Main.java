@@ -2,10 +2,8 @@ package org.wirla.WorldsOrganizer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.*;
@@ -171,20 +169,20 @@ public class Main {
 					ListTab curPage = valuePages.get(index);
 					if (curPage.isFile) {
 						if (curPage.type.equals("NET.worlds.console.SavedAvMenuItem"))
-							new Saver(curPage.path).saveAvatars(curPage.openedList);
+							new Saver(curPage.path).save(curPage.openedList, WorldDataObject.returnAvatar());
 						else if (curPage.type.equals("NET.worlds.console.BookmarkMenuItem"))
-							new Saver(curPage.path).saveMark(curPage.openedList);
+							new Saver(curPage.path).save(curPage.openedList, WorldDataObject.returnMark());
 						else throw new InvalidPersisterFile();
 					} else {
 						save();
 					}
 					curPage.hasChanged = false;
 				} catch (IOException e) {
-					error("Unable to read/write file! Permissions problem?", SWT.ICON_ERROR);
+					error("Unable to read/write file! Permissions problem?");
 				} catch (InvalidPersisterFile e) {
-					error("Invalid Persister File! Organizer does not support this format!", SWT.ICON_ERROR);
+					error("Invalid Persister File! Organizer does not support this format!");
 				} catch (NullPointerException e) {
-					error("An error occurred attempting to save.", SWT.ICON_ERROR);
+					error("An error occurred attempting to save.");
 				} catch (ArrayIndexOutOfBoundsException e) {
 					// I do this because this is thrown if the button is pressed with no tab.
 					System.out.println("An ArrayIndexOutOfBoundsException was thrown and caught during saveItem. Ignoring.");
@@ -230,7 +228,7 @@ public class Main {
 				}
 			});
 		} catch (NullPointerException e) {
-			error("Unable to read/write file! Permissions problem?", SWT.ICON_ERROR);
+			error("Unable to read/write file! Permissions problem?");
 		}
 
 		// Finalize and open the shell
@@ -275,7 +273,7 @@ public class Main {
 						// without having every frame resize everything. It's a small program though so it shouldn't
 						// come with much of a performance hit.
 						// If I don't do this, the sizes are all wrong no matter where I set them on setSize().
-						// Even when you don't resize the window.
+						// Even when you don't resize the window. Someone please help me.
 						vp.list.setSize(vp.value.getSize().x, 48);
 						vp.value.setSize(192, vp.value.getParent().getSize().y - vp.list.getSize().y);
 						vp.list.setLocation(vp.list.getLocation().x, vp.value.getSize().y);
@@ -305,8 +303,8 @@ public class Main {
 
 
 	// I do this to avoid having to copy and paste this code many times.
-	static void error(String message, int icon) {
-		MessageBox mesB = new MessageBox(shell, icon);
+	static void error(String message) {
+		MessageBox mesB = new MessageBox(shell, SWT.ICON_ERROR);
 		mesB.setMessage(message);
 		mesB.open();
 	}
@@ -316,7 +314,7 @@ public class Main {
 			int index = ctf.getSelectionIndex();
 			ListTab curPage = valuePages.get(index);
 			boolean hasEmpty = false;
-			for (WObject wo : curPage.openedList) {
+			for (WorldDataObject wo : curPage.openedList) {
 				if (wo.label.isEmpty() || wo.value.isEmpty()) {
 					hasEmpty = true;
 					break;
@@ -324,7 +322,7 @@ public class Main {
 			}
 
 			if (hasEmpty) {
-				error("Cannot save file with empty entries!", SWT.ICON_ERROR);
+				error("Cannot save file with empty entries!");
 			} else {
 				FileDialog fd = new FileDialog(shell, SWT.SAVE);
 				fd.setText("Save As");
@@ -336,15 +334,14 @@ public class Main {
 				if (savedPath != null) {
 					switch (fd.getFilterIndex()) {
 						case 0:
-							new Saver(savedPath).saveAvatars(curPage.openedList);
+							new Saver(savedPath).save(curPage.openedList, WorldDataObject.returnAvatar());
 							break;
 						case 1:
-							new Saver(savedPath).saveMark(curPage.openedList);
+							new Saver(savedPath).save(curPage.openedList, WorldDataObject.returnMark());
 							break;
 						case 2:
-							MessageBox mesB = new MessageBox(ctf.getShell(), SWT.ICON_ERROR);
-							mesB.setMessage("This feature isn't supported yet!");
-							mesB.open();
+							new Saver(savedPath).save(curPage.openedList, WorldDataObject.returnLibrary());
+							break;
 					}
 					curPage.path = savedPath;
 					curPage.updateTab();
@@ -353,7 +350,7 @@ public class Main {
 				}
 			}
 		} catch (IOException | NullPointerException e) {
-			error("Unable to read/write file! Permissions problem?", SWT.ICON_ERROR);
+			error("Unable to read/write file! Permissions problem?");
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("An ArrayIndexOutOfBoundsException was thrown and caught during saveAsItem. Ignoring.");
 		}
@@ -362,17 +359,18 @@ public class Main {
 	// These are in separate sections so I don't have to deal with the same code twice for Drag 'n' Drop and normal Open operation
 	static void open() {
 		try {
-			FileDialog fd = new FileDialog(shell, SWT.OPEN);
-			fd.setText("Open");
+			int thingy = 0;
+			FileDialog fd = new FileDialog(shell, SWT.OPEN); System.out.println(thingy++);
+			fd.setText("Open"); System.out.println(thingy++);
 			fd.setFilterNames(new String[]{
 					"All Files",
 					"WorldsPlayer Avatar Data (*.avatars)",
 					"WorldsPlayer Worldsmarks Data (*.worldsmarks)"});
-			fd.setFilterExtensions(new String[]{"*", "*.avatars", "*.worldsmarks"});
-			String openedPath = fd.open();
-			if (openedPath != null) openFile(openedPath);
+			fd.setFilterExtensions(new String[]{"*", "*.avatars", "*.worldsmarks"}); System.out.println(thingy++);
+			String openedPath = fd.open(); System.out.println(thingy++);
+			if (openedPath != null) openFile(openedPath); System.out.println(thingy++);
 		} catch (IllegalArgumentException e) {
-			error("Unable to read/write file! Permissions problem?", SWT.ICON_ERROR);
+			error("Unable to read/write file! Permissions problem?");
 		}
 	}
 
@@ -386,12 +384,12 @@ public class Main {
 		try {
 			ListTab curPage = new ListTab(ctf);
 			valuePages.add(curPage);
-			curPage.type = "NET.worlds.console.SavedAvMenuItem";
+			curPage.type = WorldDataObject.returnAvatar();
 			curPage.returnTab("Untitled", false);
 			new Main().TabListener(curPage);
 			ctf.setSelection(curPage.tab);
 		} catch (NullPointerException e) {
-			error("Unable to read/write file! Permissions problem?", SWT.ICON_ERROR);
+			error("Unable to read/write file! Permissions problem?");
 		} catch (InvalidPersisterFile e) {
 			MessageBox mesB = new MessageBox(ctf.getShell(), SWT.ICON_ERROR);
 			mesB.setMessage("Invalid File Format! File is not a valid Persister file!");
@@ -404,7 +402,7 @@ public class Main {
 		try {
 			if (filename != null) {
 				if (filename.endsWith(".library")) {
-					error("This format isn't supported yet!", SWT.ICON_ERROR);
+					error("This format isn't supported yet!");
 				} else {
 					ListTab newPage = new ListTab(ctf);
 					valuePages.add(newPage);
