@@ -359,16 +359,15 @@ public class Main {
 	// These are in separate sections so I don't have to deal with the same code twice for Drag 'n' Drop and normal Open operation
 	static void open() {
 		try {
-			int thingy = 0;
-			FileDialog fd = new FileDialog(shell, SWT.OPEN); System.out.println(thingy++);
-			fd.setText("Open"); System.out.println(thingy++);
+			FileDialog fd = new FileDialog(shell, SWT.OPEN);
+			fd.setText("Open");
 			fd.setFilterNames(new String[]{
 					"All Files",
 					"WorldsPlayer Avatar Data (*.avatars)",
 					"WorldsPlayer Worldsmarks Data (*.worldsmarks)"});
-			fd.setFilterExtensions(new String[]{"*", "*.avatars", "*.worldsmarks"}); System.out.println(thingy++);
-			String openedPath = fd.open(); System.out.println(thingy++);
-			if (openedPath != null) openFile(openedPath); System.out.println(thingy++);
+			fd.setFilterExtensions(new String[]{"*", "*.avatars", "*.worldsmarks"});
+			String openedPath = fd.open();
+			if (openedPath != null) openFile(openedPath);
 		} catch (IllegalArgumentException e) {
 			error("Unable to read/write file! Permissions problem?");
 		}
