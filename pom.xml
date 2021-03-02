@@ -13,7 +13,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.build.timestamp.format>MM/dd/YYYY HH:mm</maven.build.timestamp.format>
         <buildNumber>${maven.build.timestamp}</buildNumber>
-        <javafx.version>15.0.1</javafx.version>
     </properties>
 
     <dependencies>
@@ -73,7 +72,6 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
-                    <release>8</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -87,9 +85,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <source>8</source>
-                            <target>8</target>
-                            <release>8</release>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>project-classifier</shadedClassifierName>
                             <outputFile>shade\${project.artifactId}.jar</outputFile>
