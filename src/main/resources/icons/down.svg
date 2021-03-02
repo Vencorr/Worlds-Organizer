@@ -15,13 +15,13 @@
    stroke-width="2"
    stroke-linecap="round"
    stroke-linejoin="round"
-   class="feather feather-folder"
+   class="feather feather-chevron-down"
    version="1.1"
-   id="svg2729"
-   sodipodi:docname="folder.svg"
+   id="svg3507"
+   sodipodi:docname="chevron-down.svg"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)">
   <metadata
-     id="metadata2735">
+     id="metadata3513">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -32,7 +32,7 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs2733" />
+     id="defs3511" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -44,28 +44,17 @@
      inkscape:pageshadow="2"
      inkscape:window-width="1858"
      inkscape:window-height="1048"
-     id="namedview2731"
+     id="namedview3509"
      showgrid="false"
      inkscape:zoom="29.791667"
-     inkscape:cx="11.709938"
-     inkscape:cy="11.716113"
+     inkscape:cx="12"
+     inkscape:cy="12"
      inkscape:window-x="62"
      inkscape:window-y="32"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg2729" />
-  <path
-     style="fill:#d4a961;fill-opacity:1;stroke:#d4a961;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="m 11,6.7308486 3.03738,-3 h 8.061963 l 0.01572,3 z"
-     id="path3298"
-     sodipodi:nodetypes="ccccc" />
-  <g
-     inkscape:groupmode="layer"
-     id="layer1"
-     inkscape:label="Layer 1">
-    <path
-       d="M 22.114024,21.092684 1.9856944,21.089394 2,3.7412136 l 7,-0.010365 2,3 h 11.115068 z"
-       id="path2727"
-       sodipodi:nodetypes="ccccccc"
-       style="fill:#f0ca83;fill-opacity:1;stroke:#f0ca83;stroke-linejoin:round;stroke-opacity:1" />
-  </g>
+     inkscape:current-layer="svg3507" />
+  <polyline
+     points="6 9 12 15 18 9"
+     id="polyline3505"
+     style="stroke:#2951b5;stroke-opacity:1" />
 </svg>

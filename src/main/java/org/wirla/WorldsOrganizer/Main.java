@@ -93,7 +93,7 @@ public class Main extends Application {
 		menuBar.getItems().add(new Separator());
 
 		Button quitBtn = new Button("Quit");
-		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/quit.svg"))));
 		menuBar.getItems().add(quitBtn);
 
 		tabPane = new TabPane();

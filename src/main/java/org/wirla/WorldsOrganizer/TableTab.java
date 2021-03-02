@@ -138,11 +138,11 @@ public class TableTab {
                 toolBar.getItems().add(delBtn);
 
                 Button mupBtn = new Button();
-                mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-up.svg"))));
+                mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/up.svg"))));
                 toolBar.getItems().add(mupBtn);
 
                 Button mdwBtn = new Button();
-                mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-down.svg"))));
+                mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/down.svg"))));
                 toolBar.getItems().add(mdwBtn);
 
                 addBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -207,7 +207,7 @@ public class TableTab {
                 tab = new Tab(file.getName(), hBox);
             }
 
-            tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
+            setIcon();
             tab.setTooltip(new Tooltip(WorldDataObject.getTypeString(dataType)));
 
             tab.setOnCloseRequest(event -> {
@@ -290,13 +290,27 @@ public class TableTab {
         }
     }
 
+    private void setIcon() {
+        switch (dataType) {
+            default:
+                tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
+                break;
+            case 1:
+                tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/avatar.svg"))));
+                break;
+            case 2:
+                tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/mark.svg"))));
+                break;
+        }
+    }
+
     public void setUnsaved(boolean isUnsaved) {
         if (isUnsaved) {
             unsaved = true;
             tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
         } else{
             unsaved = false;
-            tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
+            setIcon();
         }
     }
     
