@@ -73,7 +73,7 @@ public class TableTab {
 
                 labelColumn.setOnEditCommit(t -> {
                     ((WorldDataObject) t.getTableView().getItems().get(t.getTablePosition().getRow())).setLabel(t.getNewValue());
-                    doUpdate();
+                    setUnsaved(true);
                 });
 
                 TableColumn<WorldDataObject, String> valueColumn = new TableColumn<>("Value");
@@ -84,7 +84,7 @@ public class TableTab {
 
                 valueColumn.setOnEditCommit(t -> {
                     ((WorldDataObject) t.getTableView().getItems().get(t.getTablePosition().getRow())).setValue(t.getNewValue());
-                    doUpdate();
+                    setUnsaved(true);
                 });
 
                 if (file == null) {
@@ -149,7 +149,7 @@ public class TableTab {
         values.add(newData);
         table.getItems().add(newData);
 
-        doUpdate();
+        setUnsaved(true);
     }
 
     public void delValue(int i) {
@@ -158,7 +158,7 @@ public class TableTab {
         values.remove(i);
         table.getItems().remove(i);
 
-        doUpdate();
+        setUnsaved(true);
     }
 
     public void moveValue(int i,int moveBy) {
@@ -171,13 +171,11 @@ public class TableTab {
         values.add(i + moveBy, row);
         table.getItems().add(i + moveBy, row);
 
-        doUpdate();
+        setUnsaved(true);
     }
 
     public void setFocus(int i) {
         table.getSelectionModel().select(i);
-
-        doUpdate();
     }
 
     private void quitTab() {
@@ -212,9 +210,14 @@ public class TableTab {
         }
     }
 
-    private void doUpdate() {
-        unsaved = true;
-        tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+    public void setUnsaved(boolean isUnsaved) {
+        if (isUnsaved) {
+            unsaved = true;
+            tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+        } else{
+            unsaved = false;
+            tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
+        }
     }
     
 }

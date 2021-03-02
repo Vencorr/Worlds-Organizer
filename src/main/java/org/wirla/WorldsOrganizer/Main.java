@@ -131,33 +131,11 @@ public class Main extends Application {
 		Console.sendOutput("Completed Base Window Initialization. If we got this far, shit loads and it's a good time.", true);
 
 		newFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			TableTab tableObj = new TableTab();
-			Tab tab = tableObj.getTab(null);
-
-			tabPane.getTabs().add(tab);
-			tables.add(tableObj);
-
-			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+			newFile();
 		});
 
 		openFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Open File");
-			fileChooser.getExtensionFilters().addAll(
-					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
-					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
-			);
-			File openedFile = fileChooser.showOpenDialog(primaryStage);
-
-			if (openedFile != null) {
-				TableTab tableObj = new TableTab();
-				Tab tab = tableObj.getTab(openedFile);
-
-				tabPane.getTabs().add(tab);
-				tables.add(tableObj);
-			} else {
-				Console.sendOutput("Error encountered while attempting open. FileDialog closed?", true);
-			}
+			openFile(null);
 		});
 
 		saveFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -239,13 +217,22 @@ public class Main extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		Console.sendOutput("Showing Window.", true);
+
+		Console.sendOutput("Iterating through start files.", true);
+		try {
+			for (File start : startFiles) {
+				openFile(start);
+			}
+		} catch (Exception e) {
+			Console.sendOutput("No start files to iterate through!", true);
+		}
 	}
 
 	void saveFile(TableTab table) {
 		saveFile(table, null);
 	}
 
-	void saveFile(TableTab table, File file) {
+	void saveFile(TableTab tab, File file) {
 		File theFile;
 		if (file == null) {
 			FileChooser fileChooser = new FileChooser();
@@ -260,10 +247,10 @@ public class Main extends Application {
 			switch (fileChooser.getSelectedExtensionFilter().getExtensions().get(0)) {
 				default:
 				case "*.avatars":
-					table.dataType = 1;
+					tab.dataType = 1;
 					break;
 				case "*.worldsmarks":
-					table.dataType = 2;
+					tab.dataType = 2;
 					break;
 			}
 		} else {
@@ -272,8 +259,8 @@ public class Main extends Application {
 
 		try {
 			Saver saver = new Saver(theFile);
-			saver.save(table.values, table.dataType);
-			table.unsaved = false;
+			saver.save(tab.values, tab.dataType);
+			tab.setUnsaved(false);
 		} catch (IOException ea) {
 			Console.sendOutput("IOException encountered while attempting save. This isn't supposed to happen.", true);
 			showError("An IOException was encountered.", ea.getMessage());
@@ -318,5 +305,40 @@ public class Main extends Application {
 		alert.setContentText(content);
 
 		alert.showAndWait();
+	}
+
+	void newFile() {
+		TableTab tableObj = new TableTab();
+		Tab tab = tableObj.getTab(null);
+
+		tabPane.getTabs().add(tab);
+		tables.add(tableObj);
+
+		tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+	}
+
+	void openFile(File file) {
+		File openedFile = null;
+		if (file == null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Open File");
+			fileChooser.getExtensionFilters().addAll(
+					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
+					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
+			);
+			openedFile = fileChooser.showOpenDialog(primaryStage);
+		} else {
+			openedFile = file;
+		}
+
+		if (openedFile != null) {
+			TableTab tableObj = new TableTab();
+			Tab tab = tableObj.getTab(openedFile);
+
+			tabPane.getTabs().add(tab);
+			tables.add(tableObj);
+		} else {
+			Console.sendOutput("Error encountered while attempting open. FileDialog closed?", true);
+		}
 	}
 }
