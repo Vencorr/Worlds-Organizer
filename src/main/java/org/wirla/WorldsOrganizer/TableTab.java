@@ -3,12 +3,15 @@ package org.wirla.WorldsOrganizer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -38,7 +41,7 @@ public class TableTab {
         VBox vibby = new VBox();
         vibby.setAlignment(Pos.CENTER);
 
-        ImageView logoView = new ImageView(new Image("file:logo.png"));
+        ImageView logoView = new ImageView(new Image(Main.class.getResourceAsStream("/logo.png")));
         Text text1 = new Text("Worlds Organizer v" + Console.getVersion());
         text1.setStyle("-fx-font-size: 20;");
 
@@ -54,6 +57,7 @@ public class TableTab {
     public Tab getObjectTab(File file, int type) {
         if (tab == null) {
             TableView mainTable;
+            HBox hBox = new HBox();
             if (table == null) {
                 mainTable = new TableView();
                 this.ourFile = file;
@@ -63,8 +67,6 @@ public class TableTab {
                     Console.sendOutput("Creating table of file " + file.getName(), true);
                 }
 
-
-                VBox.setVgrow(mainTable, Priority.ALWAYS);
                 mainTable.setEditable(true);
 
                 TableColumn<WorldDataObject, String> indexColumn = new TableColumn<>("#");
@@ -122,15 +124,89 @@ public class TableTab {
                 mainTable.getColumns().add(labelColumn);
                 mainTable.getColumns().add(valueColumn);
 
+                HBox.setHgrow(mainTable, Priority.ALWAYS);
+
+                ToolBar toolBar = new ToolBar();
+                toolBar.setOrientation(Orientation.VERTICAL);
+
+                Button addBtn = new Button();
+                addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
+                toolBar.getItems().add(addBtn);
+
+                Button delBtn = new Button();
+                delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+                toolBar.getItems().add(delBtn);
+
+                Button mupBtn = new Button();
+                mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-up.svg"))));
+                toolBar.getItems().add(mupBtn);
+
+                Button mdwBtn = new Button();
+                mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-down.svg"))));
+                toolBar.getItems().add(mdwBtn);
+
+                addBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                    int tabIndex = Main.tables.indexOf(this);
+
+                    if (tabIndex >= 0) {
+                        this.addValue();
+                        this.setFocus(this.table.getItems().size() - 1);
+
+                        Main.tables.set(tabIndex, this);
+                    }
+                });
+
+                delBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                    int tabIndex = Main.tables.indexOf(this);
+
+                    if (tabIndex >= 0) {
+                        int index = this.table.getSelectionModel().getFocusedIndex();
+                        this.delValue(index);
+                        this.setFocus(index < this.table.getItems().size() ? index : index - 1);
+
+                        Main.tables.set(tabIndex, this);
+                    }
+                });
+
+                mupBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                    int tabIndex = Main.tables.indexOf(this);
+
+                    if (tabIndex >= 0) {
+                        int index = this.table.getSelectionModel().getFocusedIndex();
+                        this.moveValue(index, -1);
+                        this.setFocus(index - 1);
+
+                        Main.tables.set(tabIndex, this);
+                    }
+                });
+
+                mdwBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                    int tabIndex = Main.tables.indexOf(this);
+
+                    if (tabIndex >= 0) {
+                        int index = this.table.getSelectionModel().getFocusedIndex();
+                        this.moveValue(index, 1);
+                        this.setFocus(index + 1);
+
+                        Main.tables.set(tabIndex, this);
+                    }
+                });
+
+                HBox.setHgrow(toolBar, Priority.ALWAYS);
+                hBox = new HBox(toolBar, mainTable);
                 this.table = mainTable;
             } else {
                 mainTable = table;
             }
+
+            VBox.setVgrow(hBox, Priority.ALWAYS);
+
             if (file == null) {
-                tab = new Tab("Untitled", mainTable);
+                tab = new Tab("Untitled", hBox);
             } else {
-                tab = new Tab(file.getName(), mainTable);
+                tab = new Tab(file.getName(), hBox);
             }
+
             tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
             tab.setTooltip(new Tooltip(WorldDataObject.getTypeString(dataType)));
 
@@ -138,7 +214,6 @@ public class TableTab {
                 event.consume();
                 quitTab();
             });
-
             return tab;
         } else return tab;
     }

@@ -1,13 +1,11 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.application.Application;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -98,27 +96,7 @@ public class Main extends Application {
 		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
 		menuBar.getItems().add(quitBtn);
 
-		ToolBar toolBar = new ToolBar();
-		toolBar.setOrientation(Orientation.VERTICAL);
-
-		Button addBtn = new Button();
-		addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
-		toolBar.getItems().add(addBtn);
-
-		Button delBtn = new Button();
-		delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
-		toolBar.getItems().add(delBtn);
-
-		Button mupBtn = new Button();
-		mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-up.svg"))));
-		toolBar.getItems().add(mupBtn);
-
-		Button mdwBtn = new Button();
-		mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-down.svg"))));
-		toolBar.getItems().add(mdwBtn);
-
 		tabPane = new TabPane();
-		HBox.setHgrow(tabPane, Priority.ALWAYS);
 
 		Tab startTab = new Tab("Welcome", new TableTab().getStart());
 		startTab.setClosable(false);
@@ -130,9 +108,7 @@ public class Main extends Application {
 			tables.remove(tabPane.getSelectionModel().getSelectedIndex() - 1);
 		});
 
-		HBox hBox = new HBox(toolBar, tabPane);
-		VBox.setVgrow(hBox, Priority.ALWAYS);
-		VBox vBox = new VBox(menuBar, hBox);
+		VBox vBox = new VBox(menuBar, tabPane);
 		Console.sendOutput("Completed Base Window Initialization", true);
 
 		newFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -156,66 +132,12 @@ public class Main extends Application {
 
 		/* ---- */
 
-		addBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
-
-			if (tabIndex >= 0) {
-				TableTab tableObj = tables.get(tabIndex);
-
-				tableObj.addValue();
-				tableObj.setFocus(tableObj.table.getItems().size());
-
-				tables.set(tabIndex, tableObj);
-			}
-		});
-
-		delBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
-
-			if (tabIndex >= 0) {
-
-				TableTab tableObj = tables.get(tabIndex);
-
-				int index = tableObj.table.getSelectionModel().getFocusedIndex();
-				tableObj.delValue(index);
-				tableObj.setFocus(index < tableObj.table.getItems().size() ? index : index - 1);
-
-				tables.set(tabIndex, tableObj);
-			}
-		});
-
-		mupBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
-
-			if (tabIndex >= 0) {
-				TableTab tableObj = tables.get(tabIndex);
-
-				int index = tableObj.table.getSelectionModel().getFocusedIndex();
-				tableObj.moveValue(index, -1);
-				tableObj.setFocus(index - 1);
-
-				tables.set(tabIndex, tableObj);
-			}
-		});
-
-		mdwBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
-
-			if (tabIndex >= 0) {
-				TableTab tableObj = tables.get(tabIndex);
-
-				int index = tableObj.table.getSelectionModel().getFocusedIndex();
-				tableObj.moveValue(index, 1);
-				tableObj.setFocus(index + 1);
-
-				tables.set(tabIndex, tableObj);
-			}
-		});
-
 		quitBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			e.consume();
 			quit();
 		});
+
+		VBox.setVgrow(tabPane, Priority.ALWAYS);
 
 		Scene scene = new Scene(vBox, 960, 600);
 		Console.sendOutput("Scene Prepared.", true);
