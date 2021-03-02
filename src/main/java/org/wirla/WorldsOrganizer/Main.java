@@ -190,7 +190,7 @@ public class Main extends Application {
 			try {
 				Saver saver = new Saver(thisFile);
 				saver.save(tab.values, tab.dataType);
-				tab.setUnsaved(false);
+				tab.setSaved(true);
 			} catch (IOException e) {
 				e.printStackTrace();
 				Dialog.showException(e);
@@ -201,7 +201,7 @@ public class Main extends Application {
 	void quit() {
 		boolean askForSure = false;
 		for (TableTab t : tables) {
-			if (t.unsaved = true) {
+			if (!t.getSaved()) {
 				askForSure = true;
 				break;
 			}

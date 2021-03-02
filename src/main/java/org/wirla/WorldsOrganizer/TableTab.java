@@ -30,7 +30,7 @@ public class TableTab {
     Tab tab = null;
     TableView table = null;
 
-    boolean unsaved = false;
+    private boolean modified = false;
 
     List<WorldDataObject> values = new ArrayList<>();
 
@@ -83,7 +83,7 @@ public class TableTab {
 
                 labelColumn.setOnEditCommit(t -> {
                     t.getTableView().getItems().get(t.getTablePosition().getRow()).setLabel(t.getNewValue());
-                    setUnsaved(true);
+                    setSaved(false);
                 });
 
                 TableColumn<WorldDataObject, String> valueColumn = new TableColumn<>("Value");
@@ -94,7 +94,7 @@ public class TableTab {
 
                 valueColumn.setOnEditCommit(t -> {
                     t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
-                    setUnsaved(true);
+                    setSaved(false);
                 });
 
                 if (file == null) {
@@ -225,7 +225,7 @@ public class TableTab {
         values.add(newData);
         table.getItems().add(newData);
 
-        setUnsaved(true);
+        setSaved(false);
     }
 
     public void delValue(int i) {
@@ -234,7 +234,7 @@ public class TableTab {
         values.remove(i);
         table.getItems().remove(i);
 
-        setUnsaved(true);
+        setSaved(false);
     }
 
     public void moveValue(int i,int moveBy) {
@@ -247,7 +247,7 @@ public class TableTab {
         values.add(i + moveBy, row);
         table.getItems().add(i + moveBy, row);
 
-        setUnsaved(true);
+        setSaved(false);
     }
 
     public void setFocus(int i) {
@@ -255,7 +255,7 @@ public class TableTab {
     }
 
     private void quitTab() {
-        if (unsaved) {
+        if (!getSaved()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.getDialogPane().setMinSize(200,200);
             alert.setTitle("Close Tab");
@@ -304,14 +304,18 @@ public class TableTab {
         }
     }
 
-    public void setUnsaved(boolean isUnsaved) {
-        if (isUnsaved) {
-            unsaved = true;
+    public void setSaved(boolean value) {
+        if (!value) {
+            modified = true;
             tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
         } else{
-            unsaved = false;
+            modified = false;
             setIcon();
         }
+    }
+
+    public boolean getSaved() {
+        return !modified;
     }
     
 }
