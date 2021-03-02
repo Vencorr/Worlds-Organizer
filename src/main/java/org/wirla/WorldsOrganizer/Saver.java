@@ -18,8 +18,8 @@ public class Saver {
 			FileOutputStream fis = new FileOutputStream(file);
 			dis = new DataOutputStream(fis);
 		} catch (IOException e) {
-			System.out.println("Error writing to file: " +
-					e.getMessage());
+			Console.sendOutput("Couldn't write to file!");
+			Dialog.showException(e);
 		}
 		writeString("PERSISTER Worlds, Inc."); // Persister header
 		writeInt(7); // Persister version

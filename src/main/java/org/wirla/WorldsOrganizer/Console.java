@@ -34,4 +34,19 @@ public class Console {
         return getProperty("buildDate");
     }
 
+    public static String getHelp() {
+        String command;
+        command = "WorldsOrganizer.jar [OPTIONS]\n" +
+                "Commands:\n" +
+                commandCreate("-v --verbose", "Enable verbose printouts.") + "\n" +
+                commandCreate("-i --input", "Start application with input files.") + "\n" +
+                commandCreate("-h --help", "Show this output.");
+
+        return command;
+    }
+
+    private static String commandCreate(String cmd, String info) {
+        return "     " + cmd + "                         ".substring(cmd.length()) + info;
+    }
+
 }

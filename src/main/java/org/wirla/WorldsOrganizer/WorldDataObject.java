@@ -34,6 +34,7 @@ public class WorldDataObject {
 	public static String getTypeString(int type) {
 		switch (type) {
 			default:
+				Console.sendOutput("For some reason, the type data isn't valid.");
 				return null;
 			case 1:
 				return "NET.worlds.console.SavedAvMenuItem";
@@ -59,4 +60,15 @@ public class WorldDataObject {
 	public void setLabel(String s) { label = s; }
 
 	public void setValue(String s) { value = s; }
+
+	public static WorldDataObject newType(int i) {
+		switch (i) {
+			default:
+				return new WorldDataObject(i, 1, "New Object", "");
+			case 1:
+				return new WorldDataObject(i, 1, "New Avatar", "avatar:holden.mov");
+			case 2:
+				return new WorldDataObject(i, 1, "New Mark", "home:GroundZero/groundzero.world");
+		}
+	}
 }

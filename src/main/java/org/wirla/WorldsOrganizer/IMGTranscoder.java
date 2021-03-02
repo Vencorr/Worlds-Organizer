@@ -18,9 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class IMGTranscoder {
-    // Main.class.getResourceAsStream("icon.png")
-
-
 
     public static Image toFXImage(String path) {
         return toFXImage(new File(path));

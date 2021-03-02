@@ -1,11 +1,13 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.application.Application;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -28,7 +30,7 @@ public class Main extends Application {
 	private Stage primaryStage;
 
 	public static void main(String[] args) {
-		System.out.println("Worlds Organizer v" + Console.getVersion());
+		Console.sendOutput("Worlds Organizer v" + Console.getVersion());
 
 		// Iterating through the arguments
 		// This is done in a for loop instead of a foreach because we can manipulate
@@ -37,12 +39,13 @@ public class Main extends Application {
 			String arg = args[a];
 			switch (arg) {
 				default:
+					Console.sendOutput( arg + " is not a valid argument. Please use '-help' to see a list of options and arguments." );
 					break;
-				case "-v":
+				case "-v": case "--verbose":
 					debugMode = true;
-					Console.sendOutput("Debug Mode enabled.", true);
+					Console.sendOutput("Verbose is enabled.", true);
 					break;
-				case "-i":
+				case "-i": case "--input":
 					try {
 						File newFile = new File(args[a+1]);
 						startFiles.add(newFile);
@@ -51,8 +54,8 @@ public class Main extends Application {
 						Console.sendOutput("Invalid File!");
 					}
 					break;
-				case "-h": case "-?":
-					Console.sendOutput("Someday, I will make this help output.");
+				case "-h": case "--help":
+					Console.getHelp();
 					break;
 			}
 		}
@@ -69,53 +72,53 @@ public class Main extends Application {
 			quit();
 		});
 
-		Console.sendOutput("Initialized FX.", true);
+		Console.sendOutput("JavaFX Successfully Initialized", true);
 
-		ToolBar toolBar = new ToolBar();
+		ToolBar menuBar = new ToolBar();
 
 		Button newFileBtn = new Button("New");
-
 		newFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file-plus.svg"))));
-		toolBar.getItems().add(newFileBtn);
+		menuBar.getItems().add(newFileBtn);
 
 		Button openFileBtn = new Button("Open");
 		openFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/folder.svg"))));
-		toolBar.getItems().add(openFileBtn);
+		menuBar.getItems().add(openFileBtn);
 
 		Button saveFileBtn = new Button("Save");
 		saveFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
-		toolBar.getItems().add(saveFileBtn);
+		menuBar.getItems().add(saveFileBtn);
 
 		Button saveAsFileBtn = new Button("Save As");
 		saveAsFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
-		toolBar.getItems().add(saveAsFileBtn);
+		menuBar.getItems().add(saveAsFileBtn);
 
-		toolBar.getItems().add(new Separator());
-
-		Button addBtn = new Button("Add");
-		addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
-		toolBar.getItems().add(addBtn);
-
-		Button delBtn = new Button("Delete");
-		delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
-		toolBar.getItems().add(delBtn);
-
-		Button mupBtn = new Button("Move Up");
-		mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-up.svg"))));
-		toolBar.getItems().add(mupBtn);
-
-		Button mdwBtn = new Button("Move Down");
-		mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-down.svg"))));
-		toolBar.getItems().add(mdwBtn);
-
-		toolBar.getItems().add(new Separator());
+		menuBar.getItems().add(new Separator());
 
 		Button quitBtn = new Button("Quit");
 		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
-		toolBar.getItems().add(quitBtn);
+		menuBar.getItems().add(quitBtn);
+
+		ToolBar toolBar = new ToolBar();
+		toolBar.setOrientation(Orientation.VERTICAL);
+
+		Button addBtn = new Button();
+		addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
+		toolBar.getItems().add(addBtn);
+
+		Button delBtn = new Button();
+		delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+		toolBar.getItems().add(delBtn);
+
+		Button mupBtn = new Button();
+		mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-up.svg"))));
+		toolBar.getItems().add(mupBtn);
+
+		Button mdwBtn = new Button();
+		mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-down.svg"))));
+		toolBar.getItems().add(mdwBtn);
 
 		tabPane = new TabPane();
-		VBox.setVgrow(tabPane, Priority.ALWAYS);
+		HBox.setHgrow(tabPane, Priority.ALWAYS);
 
 		Tab startTab = new Tab("Welcome", new TableTab().getStart());
 		startTab.setClosable(false);
@@ -127,8 +130,10 @@ public class Main extends Application {
 			tables.remove(tabPane.getSelectionModel().getSelectedIndex() - 1);
 		});
 
-		VBox vBox = new VBox(toolBar, tabPane);
-		Console.sendOutput("Completed Base Window Initialization. If we got this far, shit loads and it's a good time.", true);
+		HBox hBox = new HBox(toolBar, tabPane);
+		VBox.setVgrow(hBox, Priority.ALWAYS);
+		VBox vBox = new VBox(menuBar, hBox);
+		Console.sendOutput("Completed Base Window Initialization", true);
 
 		newFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			newFile();
@@ -216,7 +221,7 @@ public class Main extends Application {
 		Console.sendOutput("Scene Prepared.", true);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		Console.sendOutput("Showing Window.", true);
+		Console.sendOutput("Showing Window...", true);
 
 		Console.sendOutput("Iterating through start files.", true);
 		try {
@@ -233,7 +238,7 @@ public class Main extends Application {
 	}
 
 	void saveFile(TableTab tab, File file) {
-		File theFile;
+		File thisFile;
 		if (file == null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save As File");
@@ -242,28 +247,32 @@ public class Main extends Application {
 					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
 			);
 			fileChooser.setInitialFileName("gamma");
-			theFile = fileChooser.showSaveDialog(primaryStage);
+			thisFile = fileChooser.showSaveDialog(primaryStage);
 
-			switch (fileChooser.getSelectedExtensionFilter().getExtensions().get(0)) {
-				default:
-				case "*.avatars":
-					tab.dataType = 1;
-					break;
-				case "*.worldsmarks":
-					tab.dataType = 2;
-					break;
+			if (thisFile != null) {
+				switch (fileChooser.getSelectedExtensionFilter().getExtensions().get(0)) {
+					default:
+					case "*.avatars":
+						tab.dataType = 1;
+						break;
+					case "*.worldsmarks":
+						tab.dataType = 2;
+						break;
+				}
 			}
 		} else {
-			theFile = file;
+			thisFile = file;
 		}
 
-		try {
-			Saver saver = new Saver(theFile);
-			saver.save(tab.values, tab.dataType);
-			tab.setUnsaved(false);
-		} catch (IOException ea) {
-			Console.sendOutput("IOException encountered while attempting save. This isn't supposed to happen.", true);
-			showError("An IOException was encountered.", ea.getMessage());
+		if (thisFile != null) {
+			try {
+				Saver saver = new Saver(thisFile);
+				saver.save(tab.values, tab.dataType);
+				tab.setUnsaved(false);
+			} catch (IOException e) {
+				e.printStackTrace();
+				Dialog.showException(e);
+			}
 		}
 	}
 
@@ -278,6 +287,7 @@ public class Main extends Application {
 
 		if (askForSure) {
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.getDialogPane().setMinSize(200,200);
 			alert.setTitle("Quit");
 			alert.setHeaderText("Are you sure you want to quit?");
 			alert.setContentText("You have unsaved changes. Quitting now will lose your progress.");
@@ -298,27 +308,21 @@ public class Main extends Application {
 		}
 	}
 
-	void showError(String header, String content) {
-		Alert alert = new Alert(Alert.AlertType.ERROR);
-		alert.setTitle("An Error Occurred");
-		alert.setHeaderText(header);
-		alert.setContentText(content);
-
-		alert.showAndWait();
-	}
-
 	void newFile() {
 		TableTab tableObj = new TableTab();
-		Tab tab = tableObj.getTab(null);
+		int newType = Dialog.newFile();
+		if (newType != 0) {
+			Tab tab = tableObj.getObjectTab(null, newType);
 
-		tabPane.getTabs().add(tab);
-		tables.add(tableObj);
+			tabPane.getTabs().add(tab);
+			tables.add(tableObj);
 
-		tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+		}
 	}
 
 	void openFile(File file) {
-		File openedFile = null;
+		File openedFile;
 		if (file == null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Open File");
@@ -333,10 +337,12 @@ public class Main extends Application {
 
 		if (openedFile != null) {
 			TableTab tableObj = new TableTab();
-			Tab tab = tableObj.getTab(openedFile);
+			Tab tab = tableObj.getObjectTab(openedFile, 0);
 
 			tabPane.getTabs().add(tab);
 			tables.add(tableObj);
+
+			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
 		} else {
 			Console.sendOutput("Error encountered while attempting open. FileDialog closed?", true);
 		}

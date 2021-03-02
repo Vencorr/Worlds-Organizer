@@ -8,7 +8,7 @@ public class Restorer {
 	DataInputStream dis;
 
 	File file;
-	int type = 0;
+	public int type;
 
 	private int oID;
 
@@ -56,16 +56,15 @@ public class Restorer {
 		List<WorldDataObject> vList = new ArrayList<WorldDataObject>(count);
 
 		oID = readInt(); // Object ID
-		String type = readString(); // Class Name
-		if (WorldDataObject.isType(type)) {
-			if (this.type == 0) this.type = WorldDataObject.getTypeInt(type);
-			else assert this.type == WorldDataObject.getTypeInt(type);
+		String typeText = readString(); // Class Name
+		if (WorldDataObject.isType(typeText)) {
+			this.type = WorldDataObject.getTypeInt(typeText);
 			Console.sendOutput("Detected as supported class. Continuing...", true);
 
 			for (int i = 0; i < count; i++) {
 				if (i > 0) readInt();
 				int version = readInt();
-				WorldDataObject curW = new WorldDataObject(WorldDataObject.getTypeInt(type), version, readString(), readString());
+				WorldDataObject curW = new WorldDataObject(this.type, version, readString(), readString());
 				vList.add(curW);
 			}
 			assert readString().equals("END PERSISTER");

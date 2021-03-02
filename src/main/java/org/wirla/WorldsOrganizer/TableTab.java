@@ -1,17 +1,17 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
+import javafx.scene.text.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +21,11 @@ import java.util.Optional;
 
 public class TableTab {
 
-    int dataType;
+    int dataType = 0;
     File ourFile;
 
-    TableView table = null;
     Tab tab = null;
+    TableView table = null;
 
     boolean unsaved = false;
 
@@ -34,11 +34,24 @@ public class TableTab {
     public TableTab() {
     }
 
-    public GridPane getStart() {
-        return new GridPane();
+    public VBox getStart() {
+        VBox vibby = new VBox();
+        vibby.setAlignment(Pos.CENTER);
+
+        ImageView logoView = new ImageView(new Image("file:logo.png"));
+        Text text1 = new Text("Worlds Organizer v" + Console.getVersion());
+        text1.setStyle("-fx-font-size: 20;");
+
+        Text text2 = new Text("Created and Maintained by Wirlaburla");
+
+        Text text3 = new Text("Built on " + Console.getDate());
+
+        vibby.getChildren().addAll(logoView, text1, text2, text3);
+
+        return vibby;
     }
-    
-    public Tab getTab(File file) {
+
+    public Tab getObjectTab(File file, int type) {
         if (tab == null) {
             TableView mainTable;
             if (table == null) {
@@ -56,12 +69,7 @@ public class TableTab {
 
                 TableColumn<WorldDataObject, String> indexColumn = new TableColumn<>("#");
                 indexColumn.prefWidthProperty().bind(mainTable.widthProperty().multiply(0.05));
-                indexColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<WorldDataObject, String>, ObservableValue<String>>() {
-                    @Override
-                    public ObservableValue<String> call(TableColumn.CellDataFeatures<WorldDataObject, String> p) {
-                        return new ReadOnlyObjectWrapper(mainTable.getItems().indexOf(p.getValue()) + "");
-                    }
-                });
+                indexColumn.setCellValueFactory(p -> new ReadOnlyObjectWrapper(mainTable.getItems().indexOf(p.getValue())));
                 indexColumn.setSortable(false);
                 indexColumn.setEditable(false);
 
@@ -72,7 +80,7 @@ public class TableTab {
                 labelColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
                 labelColumn.setOnEditCommit(t -> {
-                    ((WorldDataObject) t.getTableView().getItems().get(t.getTablePosition().getRow())).setLabel(t.getNewValue());
+                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setLabel(t.getNewValue());
                     setUnsaved(true);
                 });
 
@@ -83,27 +91,30 @@ public class TableTab {
                 valueColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
                 valueColumn.setOnEditCommit(t -> {
-                    ((WorldDataObject) t.getTableView().getItems().get(t.getTablePosition().getRow())).setValue(t.getNewValue());
+                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
                     setUnsaved(true);
                 });
 
                 if (file == null) {
-                    this.dataType = 0;
-                    WorldDataObject newData = new WorldDataObject(dataType, 1, "New Object", "");
+                    assert type != 0;
+                    this.dataType = type;
+                    WorldDataObject newData = WorldDataObject.newType(type);
                     mainTable.getItems().add(newData);
                     values.add(newData);
                 } else {
                     Restorer restorer = new Restorer(file);
-                    this.dataType = restorer.type;
                     try {
                         values = restorer.getValues();
+                        this.dataType = restorer.type;
                         for (WorldDataObject wdo : values) {
                             mainTable.getItems().add(wdo);
                         }
                     } catch (IOException e) {
-                        Console.sendOutput("IOException encountered! An issue with the file, perhaps?");
+                        e.printStackTrace();
+                        Dialog.showException(e);
                     } catch (InvalidPersisterFile e) {
                         Console.sendOutput("InvalidPersisterFile encountered! Is this a Persister file?");
+                        Dialog.showException(e);
                     }
                 }
 
@@ -121,6 +132,7 @@ public class TableTab {
                 tab = new Tab(file.getName(), mainTable);
             }
             tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
+            tab.setTooltip(new Tooltip(WorldDataObject.getTypeString(dataType)));
 
             tab.setOnCloseRequest(event -> {
                 event.consume();
@@ -133,18 +145,7 @@ public class TableTab {
 
     public void addValue() {
         assert table != null;
-        WorldDataObject newData;
-        switch (dataType) {
-            default:
-                newData = new WorldDataObject(dataType, 1, "New Object", "");
-                break;
-            case 1:
-                newData = new WorldDataObject(dataType, 1, "New Avatar", "avatar:axel.rwx");
-                break;
-            case 2:
-                newData = new WorldDataObject(dataType, 1, "New WorldsMark", "home:GroundZero/groundzero.world");
-                break;
-        }
+        WorldDataObject newData = WorldDataObject.newType(dataType);
 
         values.add(newData);
         table.getItems().add(newData);
@@ -181,6 +182,7 @@ public class TableTab {
     private void quitTab() {
         if (unsaved) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.getDialogPane().setMinSize(200,200);
             alert.setTitle("Close Tab");
             alert.setHeaderText("Are you sure you want to close this tab?");
             alert.setContentText("You have unsaved changes. Closing now will lose your progress.");
@@ -202,6 +204,9 @@ public class TableTab {
     }
 
     private void closeTab() {
+        int index = tab.getTabPane().getSelectionModel().getSelectedIndex() - 1;
+        Main.tables.remove(index);
+
         EventHandler<Event> handler = tab.getOnClosed();
         if (null != handler) {
             handler.handle(null);
