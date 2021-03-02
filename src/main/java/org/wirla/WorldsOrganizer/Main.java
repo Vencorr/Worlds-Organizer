@@ -1,421 +1,322 @@
 package org.wirla.WorldsOrganizer;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.*;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class Main {
+public class Main extends Application {
 
-	static Display display;
-	static Shell shell;
+	static boolean debugMode = false;
 
-	static List<ListTab> valuePages = new ArrayList<>();
+	static List<File> startFiles = new ArrayList<>();
+	static List<TableTab> tables = new ArrayList<>();
+	TabPane tabPane;
 
-	static List<String> preFiles;
-
-	static CTabFolder ctf;
+	private Stage primaryStage;
 
 	public static void main(String[] args) {
-		boolean start = true;
-		System.out.println("Worlds Organizer " + Detail.getVersion());
-		preFiles = new ArrayList<String>();
+		System.out.println("Worlds Organizer v" + Console.getVersion());
 
-		// Argument Handling
-		if (args.length > 0) {
-			System.out.println("Build Date: " + Detail.getDate());
-
-			for (int a = 0; a < args.length; a++) {
-				switch (args[a]) {
-					case "-i":
-						try {
-							if (new File(args[a+1]).exists()) {
-								preFiles.add(args[a+1]);
-								a++;
-							} else throw new IOException();
-						} catch (IOException ioe) {
-							System.out.println(args[a+1] + " is not a valid file!");
-							System.out.println("java -jar WorldsOrganizer.jar -i <FILE>");
-						}
-						break;
-					case "-h": case "--help":
-						start = false;
-						System.out.println("  -h, --help                  Show this help output.");
-						System.out.println("  -i                          Input files to open with.");
-						System.out.println();
-						System.out.println("This software is in Beta stage! Bugs are expected!");
-						break;
-				}
-			}
-		}
-		if (start) initWindow();
-	}
-
-	static void initWindow() {
-		display = new Display();
-		shell = new Shell(display);
-
-		// Detect on close button
-		// Don't want any unsaved work, do we?
-		shell.addListener(SWT.Close, event -> {
-			int unsaved = 0;
-			for (ListTab vp : valuePages) {
-				if (vp.hasChanged) unsaved++;
-			}
-			if (unsaved > 0) {
-				event.doit = false;
-				MessageBox mesB = new MessageBox(shell, SWT.NONE | SWT.OK | SWT.CANCEL);
-				mesB.setMessage("Are you sure you want to quit? All unsaved work will be lost!");
-				int status = mesB.open();
-				switch (status) {
-					case SWT.OK:
-						event.doit = true;
-						break;
-					case SWT.CANCEL:
-						event.doit = false;
-						break;
-				}
-			}
-		});
-
-
-		FillLayout fl = new FillLayout();
-		fl.type = SWT.VERTICAL;
-		shell.setLayout(fl);
-
-		Image icon = new Image(display, Main.class.getClassLoader().getResourceAsStream("resources/icon.png"));
-
-		// Main Window Details
-		shell.setText("Worlds Organizer");
-		shell.setImage(icon);
-		shell.setSize(600, 400);
-		shell.setMinimumSize(600, 400);
-
-		// Menu
-		Menu menuBar = new Menu(shell, SWT.BAR);
-
-		Menu fileMenu = new Menu(menuBar);
-		Menu helpMenu = new Menu(menuBar);
-
-		MenuItem fileItem = new MenuItem(menuBar, SWT.CASCADE);
-		fileItem.setText("File");
-		fileItem.setMenu(fileMenu);
-
-		MenuItem helpItem = new MenuItem(menuBar, SWT.CASCADE);
-		helpItem.setText("Help");
-		helpItem.setMenu(helpMenu);
-
-		MenuItem aboutItem = new MenuItem(helpMenu, SWT.NONE);
-		aboutItem.setText("About");
-
-		aboutItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent selectionEvent) {
-				new AboutDialog(display);
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent selectionEvent) {
-
-			}
-		});
-
-
-		MenuItem newItem = new MenuItem(fileMenu, SWT.NONE);
-		newItem.setText("New");
-
-		newItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent selectionEvent) { newItem(); }
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent selectionEvent) {
-			}
-		});
-
-
-
-
-		MenuItem openItem = new MenuItem(fileMenu, SWT.NONE);
-		openItem.setText("Open...");
-
-		openItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent selectionEvent) {
-				open();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent selectionEvent) {
-			}
-		});
-
-		MenuItem saveItem = new MenuItem(fileMenu, SWT.NONE);
-		saveItem.setText("Save");
-
-		saveItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent selectionEvent) {
-				try {
-					int index = ctf.getSelectionIndex();
-					ListTab curPage = valuePages.get(index);
-					if (curPage.isFile) {
-						if (curPage.type.equals("NET.worlds.console.SavedAvMenuItem"))
-							new Saver(curPage.path).save(curPage.openedList, WorldDataObject.returnAvatar());
-						else if (curPage.type.equals("NET.worlds.console.BookmarkMenuItem"))
-							new Saver(curPage.path).save(curPage.openedList, WorldDataObject.returnMark());
-						else throw new InvalidPersisterFile();
-					} else {
-						save();
-					}
-					curPage.hasChanged = false;
-				} catch (IOException e) {
-					error("Unable to read/write file! Permissions problem?");
-				} catch (InvalidPersisterFile e) {
-					error("Invalid Persister File! Organizer does not support this format!");
-				} catch (NullPointerException e) {
-					error("An error occurred attempting to save.");
-				} catch (ArrayIndexOutOfBoundsException e) {
-					// I do this because this is thrown if the button is pressed with no tab.
-					System.out.println("An ArrayIndexOutOfBoundsException was thrown and caught during saveItem. Ignoring.");
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent selectionEvent) {
-			}
-		});
-
-
-		MenuItem saveAsItem = new MenuItem(fileMenu, SWT.NONE);
-		saveAsItem.setText("Save As...");
-
-		saveAsItem.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent selectionEvent) {
-				save();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent selectionEvent) {
-			}
-		});
-
-
-		// Setup Tab System
-		ctf = new CTabFolder(shell, SWT.DEFAULT);
-
-		// Drag 'n' Drop
-		DropTarget dt = new DropTarget(ctf, DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK);
-		dt.setTransfer(new Transfer[]{FileTransfer.getInstance()});
-		try {
-			dt.addDropListener(new DropTargetAdapter() {
-				public void drop(DropTargetEvent event) {
-					FileTransfer ft = FileTransfer.getInstance();
-					if (ft.isSupportedType(event.currentDataType)) {
-						for (String a : (String[]) event.data) {
-							openFile(a);
-						}
-					}
-				}
-			});
-		} catch (NullPointerException e) {
-			error("Unable to read/write file! Permissions problem?");
-		}
-
-		// Finalize and open the shell
-		shell.setMenuBar(menuBar);
-		shell.open();
-
-		if (preFiles.size() > 0) {
-			for (String arg : preFiles) {
-				openFile(arg);
-			}
-		}
-
-		// Main Loop
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				// Disabling Save/Save as if no tab is selected
-				if (ctf.getSelectionIndex() < 0) {
-					saveItem.setEnabled(false);
-					saveAsItem.setEnabled(false);
-				} else {
-					saveItem.setEnabled(true);
-					saveAsItem.setEnabled(true);
-				}
-
-				for (ListTab vp : valuePages) {
-					try {
-						if (!vp.isOriginal()) vp.hasChanged = true;
-
-						// Save Icon
-						// Let's loop through everything, shall we?
-						if (vp.hasChanged && vp.tab.getImage() == null) {
-							vp.tab.setImage(new Image(ctf.getDisplay(), Main.class.getClassLoader().getResourceAsStream("resources/save.png")));
-						} else if (!vp.hasChanged && vp.tab.getImage() != null) {
-							vp.tab.setImage(null);
-						}
-
-						if (ctf.getSelection() == vp.tab) {
-							saveItem.setEnabled(vp.isWritable());
-						}
-
-						// This is probably absolutely terrible and most likely there is a better way to do this
-						// without having every frame resize everything. It's a small program though so it shouldn't
-						// come with much of a performance hit.
-						// If I don't do this, the sizes are all wrong no matter where I set them on setSize().
-						// Even when you don't resize the window. Someone please help me.
-						vp.list.setSize(vp.value.getSize().x, 48);
-						vp.value.setSize(192, vp.value.getParent().getSize().y - vp.list.getSize().y);
-						vp.list.setLocation(vp.list.getLocation().x, vp.value.getSize().y);
-						vp.properties.setSize((ctf.getSize().x - vp.value.getSize().x) - 4, vp.properties.getSize().y);
-						vp.properties.setLocation(vp.value.getSize().x + 4, vp.properties.getParent().getLocation().y);
-					} catch (NullPointerException e) {
-						int index = valuePages.indexOf(vp);
-						System.out.println("An error occurred during the pages main loop. Removing faulty page.");
-						valuePages.remove(vp);
-						ctf.getItem(index).dispose();
-						break;
-					}
-				}
-			}
-		}
-		display.dispose();
-	}
-
-	// Removing any leftovers. Logging in the output so it's debugging, right?
-	void TabListener(ListTab vp) {
-		try {
-			vp.tab.addDisposeListener(disposeEvent -> valuePages.remove(vp));
-		} catch (NullPointerException e) {
-			System.out.println("Tab is null. Not applying listener.");
-		}
-	}
-
-
-	// I do this to avoid having to copy and paste this code many times.
-	static void error(String message) {
-		MessageBox mesB = new MessageBox(shell, SWT.ICON_ERROR);
-		mesB.setMessage(message);
-		mesB.open();
-	}
-
-	static void save() {
-		try {
-			int index = ctf.getSelectionIndex();
-			ListTab curPage = valuePages.get(index);
-			boolean hasEmpty = false;
-			for (WorldDataObject wo : curPage.openedList) {
-				if (wo.label.isEmpty() || wo.value.isEmpty()) {
-					hasEmpty = true;
+		// Iterating through the arguments
+		// This is done in a for loop instead of a foreach because we can manipulate
+		// and skip over values we are using for arguments.
+		for (int a = 0; a < args.length; a++) {
+			String arg = args[a];
+			switch (arg) {
+				default:
 					break;
-				}
+				case "-v":
+					debugMode = true;
+					Console.sendOutput("Debug Mode enabled.", true);
+					break;
+				case "-i":
+					try {
+						File newFile = new File(args[a+1]);
+						startFiles.add(newFile);
+						a++;
+					} catch (Exception e) {
+						Console.sendOutput("Invalid File!");
+					}
+					break;
+				case "-h": case "-?":
+					Console.sendOutput("Someday, I will make this help output.");
+					break;
 			}
+		}
+		launch(args);
+	}
 
-			if (hasEmpty) {
-				error("Cannot save file with empty entries!");
+	@Override
+	public void start(Stage pStage) throws Exception {
+		this.primaryStage = pStage;
+		primaryStage.setTitle("Worlds Organizer v" + Console.getVersion());
+		primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("/icon.png")));
+
+		primaryStage.setOnCloseRequest(a -> {
+			quit();
+		});
+
+		Console.sendOutput("Initialized FX.", true);
+
+		ToolBar toolBar = new ToolBar();
+
+		Button newFileBtn = new Button("New");
+
+		newFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file-plus.svg"))));
+		toolBar.getItems().add(newFileBtn);
+
+		Button openFileBtn = new Button("Open");
+		openFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/folder.svg"))));
+		toolBar.getItems().add(openFileBtn);
+
+		Button saveFileBtn = new Button("Save");
+		saveFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+		toolBar.getItems().add(saveFileBtn);
+
+		Button saveAsFileBtn = new Button("Save As");
+		saveAsFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+		toolBar.getItems().add(saveAsFileBtn);
+
+		toolBar.getItems().add(new Separator());
+
+		Button addBtn = new Button("Add");
+		addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
+		toolBar.getItems().add(addBtn);
+
+		Button delBtn = new Button("Delete");
+		delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+		toolBar.getItems().add(delBtn);
+
+		Button mupBtn = new Button("Move Up");
+		mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-up.svg"))));
+		toolBar.getItems().add(mupBtn);
+
+		Button mdwBtn = new Button("Move Down");
+		mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/chevron-down.svg"))));
+		toolBar.getItems().add(mdwBtn);
+
+		toolBar.getItems().add(new Separator());
+
+		Button quitBtn = new Button("Quit");
+		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+		toolBar.getItems().add(quitBtn);
+
+		tabPane = new TabPane();
+		VBox.setVgrow(tabPane, Priority.ALWAYS);
+
+		Tab startTab = new Tab("Welcome", new TableTab().getStart());
+		startTab.setClosable(false);
+
+		tabPane.getTabs().add(startTab);
+
+		tabPane.addEventFilter(Tab.CLOSED_EVENT, f -> {
+			Console.sendOutput("Detected Tab Closed. Index " + (tabPane.getSelectionModel().getSelectedIndex() - 1) + ".", true);
+			tables.remove(tabPane.getSelectionModel().getSelectedIndex() - 1);
+		});
+
+		VBox vBox = new VBox(toolBar, tabPane);
+		Console.sendOutput("Completed Base Window Initialization. If we got this far, shit loads and it's a good time.", true);
+
+		newFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			TableTab tableObj = new TableTab();
+			Tab tab = tableObj.getTab(null);
+
+			tabPane.getTabs().add(tab);
+			tables.add(tableObj);
+
+			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+		});
+
+		openFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Open File");
+			fileChooser.getExtensionFilters().addAll(
+					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
+					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
+			);
+			File openedFile = fileChooser.showOpenDialog(primaryStage);
+
+			if (openedFile != null) {
+				TableTab tableObj = new TableTab();
+				Tab tab = tableObj.getTab(openedFile);
+
+				tabPane.getTabs().add(tab);
+				tables.add(tableObj);
 			} else {
-				FileDialog fd = new FileDialog(shell, SWT.SAVE);
-				fd.setText("Save As");
-				fd.setFilterNames(new String[]{
-						"WorldsPlayer Avatar Data (*.avatars)",
-						"WorldsPlayer Worldsmarks Data (*.worldsmarks)"});
-				fd.setFilterExtensions(new String[]{"*.avatars", "*.worldsmarks"});
-				String savedPath = fd.open();
-				if (savedPath != null) {
-					switch (fd.getFilterIndex()) {
-						case 0:
-							new Saver(savedPath).save(curPage.openedList, WorldDataObject.returnAvatar());
-							break;
-						case 1:
-							new Saver(savedPath).save(curPage.openedList, WorldDataObject.returnMark());
-							break;
-						case 2:
-							new Saver(savedPath).save(curPage.openedList, WorldDataObject.returnLibrary());
-							break;
-					}
-					curPage.path = savedPath;
-					curPage.updateTab();
-					curPage.hasChanged = false;
-					curPage.openedList = curPage.getOriginal();
-				}
+				Console.sendOutput("Error encountered while attempting open. FileDialog closed?", true);
 			}
-		} catch (IOException | NullPointerException e) {
-			error("Unable to read/write file! Permissions problem?");
-		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("An ArrayIndexOutOfBoundsException was thrown and caught during saveAsItem. Ignoring.");
-		}
-	}
+		});
 
-	// These are in separate sections so I don't have to deal with the same code twice for Drag 'n' Drop and normal Open operation
-	static void open() {
-		try {
-			FileDialog fd = new FileDialog(shell, SWT.OPEN);
-			fd.setText("Open");
-			fd.setFilterNames(new String[]{
-					"All Files",
-					"WorldsPlayer Avatar Data (*.avatars)",
-					"WorldsPlayer Worldsmarks Data (*.worldsmarks)"});
-			fd.setFilterExtensions(new String[]{"*", "*.avatars", "*.worldsmarks"});
-			String openedPath = fd.open();
-			if (openedPath != null) openFile(openedPath);
-		} catch (IllegalArgumentException e) {
-			error("Unable to read/write file! Permissions problem?");
-		}
-	}
+		saveFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			TableTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			saveFile(tableObj, tableObj.ourFile);
 
-	static void invalidPersister() {
-		MessageBox mesB = new MessageBox(ctf.getShell(), SWT.ICON_ERROR);
-		mesB.setMessage("Invalid File Format! File is not a valid Persister file!");
-		mesB.open();
-	}
+		});
 
-	static void newItem() {
-		try {
-			ListTab curPage = new ListTab(ctf);
-			valuePages.add(curPage);
-			curPage.type = WorldDataObject.returnAvatar();
-			curPage.returnTab("Untitled", false);
-			new Main().TabListener(curPage);
-			ctf.setSelection(curPage.tab);
-		} catch (NullPointerException e) {
-			error("Unable to read/write file! Permissions problem?");
-		} catch (InvalidPersisterFile e) {
-			MessageBox mesB = new MessageBox(ctf.getShell(), SWT.ICON_ERROR);
-			mesB.setMessage("Invalid File Format! File is not a valid Persister file!");
-			mesB.open();
-		} catch (ArrayIndexOutOfBoundsException ignored) {
-		}
-	}
+		saveAsFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			TableTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			saveFile(tableObj);
+		});
 
-	static void openFile(String filename) {
-		try {
-			if (filename != null) {
-				if (filename.endsWith(".library")) {
-					error("This format isn't supported yet!");
-				} else {
-					ListTab newPage = new ListTab(ctf);
-					valuePages.add(newPage);
-					newPage.returnTab(filename);
-					new Main().TabListener(newPage);
-					ctf.setSelection(newPage.tab);
-					if (newPage.value.getItemCount() > 0) {
-						newPage.value.setSelection(0);
-						newPage.selectedUpdate();
-					}
-				}
+		/* ---- */
+
+		addBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
+
+			if (tabIndex >= 0) {
+				TableTab tableObj = tables.get(tabIndex);
+
+				tableObj.addValue();
+				tableObj.setFocus(tableObj.table.getItems().size());
+
+				tables.set(tabIndex, tableObj);
 			}
-		} catch (InvalidPersisterFile e) {
-			invalidPersister();
+		});
+
+		delBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
+
+			if (tabIndex >= 0) {
+
+				TableTab tableObj = tables.get(tabIndex);
+
+				int index = tableObj.table.getSelectionModel().getFocusedIndex();
+				tableObj.delValue(index);
+				tableObj.setFocus(index < tableObj.table.getItems().size() ? index : index - 1);
+
+				tables.set(tabIndex, tableObj);
+			}
+		});
+
+		mupBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
+
+			if (tabIndex >= 0) {
+				TableTab tableObj = tables.get(tabIndex);
+
+				int index = tableObj.table.getSelectionModel().getFocusedIndex();
+				tableObj.moveValue(index, -1);
+				tableObj.setFocus(index - 1);
+
+				tables.set(tabIndex, tableObj);
+			}
+		});
+
+		mdwBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			int tabIndex = tabPane.getSelectionModel().getSelectedIndex() - 1;
+
+			if (tabIndex >= 0) {
+				TableTab tableObj = tables.get(tabIndex);
+
+				int index = tableObj.table.getSelectionModel().getFocusedIndex();
+				tableObj.moveValue(index, 1);
+				tableObj.setFocus(index + 1);
+
+				tables.set(tabIndex, tableObj);
+			}
+		});
+
+		quitBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			e.consume();
+			quit();
+		});
+
+		Scene scene = new Scene(vBox, 960, 600);
+		Console.sendOutput("Scene Prepared.", true);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		Console.sendOutput("Showing Window.", true);
+	}
+
+	void saveFile(TableTab table) {
+		saveFile(table, null);
+	}
+
+	void saveFile(TableTab table, File file) {
+		File theFile;
+		if (file == null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save As File");
+			fileChooser.getExtensionFilters().addAll(
+					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
+					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
+			);
+			fileChooser.setInitialFileName("gamma");
+			theFile = fileChooser.showSaveDialog(primaryStage);
+
+			switch (fileChooser.getSelectedExtensionFilter().getExtensions().get(0)) {
+				default:
+				case "*.avatars":
+					table.dataType = 1;
+					break;
+				case "*.worldsmarks":
+					table.dataType = 2;
+					break;
+			}
+		} else {
+			theFile = file;
 		}
+
+		try {
+			Saver saver = new Saver(theFile);
+			saver.save(table.values, table.dataType);
+			table.unsaved = false;
+		} catch (IOException ea) {
+			Console.sendOutput("IOException encountered while attempting save. This isn't supposed to happen.", true);
+			showError("An IOException was encountered.", ea.getMessage());
+		}
+	}
+
+	void quit() {
+		boolean askForSure = false;
+		for (TableTab t : tables) {
+			if (t.unsaved = true) {
+				askForSure = true;
+				break;
+			}
+		}
+
+		if (askForSure) {
+			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Quit");
+			alert.setHeaderText("Are you sure you want to quit?");
+			alert.setContentText("You have unsaved changes. Quitting now will lose your progress.");
+
+			ButtonType dontSaveButton = new ButtonType("Discard Changes");
+			ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+			alert.getButtonTypes().setAll(dontSaveButton, buttonTypeCancel);
+
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.get() == dontSaveButton) {
+				primaryStage.close();
+			} else {
+				alert.close();
+			}
+		} else {
+			primaryStage.close();
+		}
+	}
+
+	void showError(String header, String content) {
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setTitle("An Error Occurred");
+		alert.setHeaderText(header);
+		alert.setContentText(content);
+
+		alert.showAndWait();
 	}
 }

@@ -10,12 +10,12 @@ public class Saver {
 
 	DataOutputStream dis;
 
-	String path;
+	File file;
 
-	Saver(String path) throws IOException {
-		this.path = path;
+	Saver(File file) throws IOException {
+		this.file = file;
 		try {
-			FileOutputStream fis = new FileOutputStream(new File(path));
+			FileOutputStream fis = new FileOutputStream(file);
 			dis = new DataOutputStream(fis);
 		} catch (IOException e) {
 			System.out.println("Error writing to file: " +
@@ -25,21 +25,21 @@ public class Saver {
 		writeInt(7); // Persister version
 	}
 
-	public void save(List<WorldDataObject> objects, String type) throws IOException {
+	public void save(List<WorldDataObject> objects, int type) throws IOException {
 		int count = objects.size();
 		writeInt(count);
 		writeInt(459);
 		int objID = 8782;
 		writeInt(objID);
-		writeString(type);
+		writeString(WorldDataObject.getTypeString(type));
 		for (int i = 0; i < count; i++) {
 			if (i > 0) {
 				writeInt(460 + i);
 				writeInt(objID);
 			}
 			else writeInt(1);
-			writeString(objects.get(i).label);
-			writeString(objects.get(i).value);
+			writeString(objects.get(i).getLabel());
+			writeString(objects.get(i).getValue());
 		}
 		writeString("END PERSISTER");
 	}

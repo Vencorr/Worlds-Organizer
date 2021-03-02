@@ -7,18 +7,23 @@ public class Restorer {
 
 	DataInputStream dis;
 
-	String path;
+	File file;
+	int type = 0;
 
 	private int oID;
 
 	Restorer(String path) {
-		this.path = path;
+		new Restorer(new File(path));
+	}
+
+	Restorer(File file) {
+		this.file = file;
 		try {
-			FileInputStream fis = new FileInputStream(new File(path));
+			FileInputStream fis = new FileInputStream(file);
 			dis = new DataInputStream(fis);
 		} catch (IOException e) {
-			System.out.println("Error reading from file: " +
-					e.getMessage());
+			Console.sendOutput("Error reading from file: " + e.getMessage());
+			System.out.println();
 		}
 	}
 
@@ -32,8 +37,8 @@ public class Restorer {
 				throw new InvalidPersisterFile();
 			} else {
 				int pVersion = readInt(); // Persister Version
-				System.out.println("Persister Version detected as " + pVersion + ".");
-				if (pVersion != 7) System.out.println("Version not supported. This may not work!");
+				Console.sendOutput("Persister Version detected as " + pVersion + ".");
+				if (pVersion != 7) Console.sendOutput("Version not supported!");
 
 				int count = readInt(); // Vector Count
 
@@ -46,19 +51,21 @@ public class Restorer {
 	}
 
 	private List<WorldDataObject> readVector(int count) throws IOException {
-		System.out.println("Starting Read of " + path);
+		Console.sendOutput("Starting read of " + file.getPath(), true);
 
 		List<WorldDataObject> vList = new ArrayList<WorldDataObject>(count);
 
 		oID = readInt(); // Object ID
 		String type = readString(); // Class Name
 		if (WorldDataObject.isType(type)) {
-			System.out.println("Detected as supported class. Continuing.");
+			if (this.type == 0) this.type = WorldDataObject.getTypeInt(type);
+			else assert this.type == WorldDataObject.getTypeInt(type);
+			Console.sendOutput("Detected as supported class. Continuing...", true);
 
 			for (int i = 0; i < count; i++) {
 				if (i > 0) readInt();
 				int version = readInt();
-				WorldDataObject curW = new WorldDataObject(type, version, readString(), readString());
+				WorldDataObject curW = new WorldDataObject(WorldDataObject.getTypeInt(type), version, readString(), readString());
 				vList.add(curW);
 			}
 			assert readString().equals("END PERSISTER");

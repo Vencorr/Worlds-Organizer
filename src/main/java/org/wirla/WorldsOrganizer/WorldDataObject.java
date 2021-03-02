@@ -2,37 +2,61 @@ package org.wirla.WorldsOrganizer;
 
 public class WorldDataObject {
 
-	int classID;
-	int objectID;
-	String type;
-	int version;
-	String label;
-	String value;
+	private int classID;
+	private int objectID;
+	private int type;
+	private String typeName;
+	private int version;
+	private String label;
+	private String value;
 
-	private static String typeAvatar = "NET.worlds.console.SavedAvMenuItem";
-	private static String typeMark = "NET.worlds.console.BookmarkMenuItem";
-	private static String typeLibrary = "NET.worlds.scape.Library";
-
-	WorldDataObject(String type, int v, String l, String c) {
-		this.type = type;
+	WorldDataObject(int t, int v, String l, String c) {
+		type = t;
+		typeName = getTypeString(type);
 		version = v;
 		label = l;
 		value = c;
 	}
 
+	public static int getTypeInt(String type) {
+		switch (type) {
+			default:
+				return 0;
+			case "NET.worlds.console.SavedAvMenuItem":
+				return 1;
+			case "NET.worlds.console.BookmarkMenuItem":
+				return 2;
+			case "NET.worlds.scape.Library":
+				return 3;
+		}
+	}
+
+	public static String getTypeString(int type) {
+		switch (type) {
+			default:
+				return null;
+			case 1:
+				return "NET.worlds.console.SavedAvMenuItem";
+			case 2:
+				return "NET.worlds.console.BookmarkMenuItem";
+			case 3:
+				return "NET.worlds.scape.Library";
+		}
+	}
+
 	public static boolean isType(String s) {
-		return s.equals(typeAvatar) || s.equals(typeMark) || s.equals(typeLibrary);
+		return getTypeInt(s) != 0;
 	}
 
-	public static String returnAvatar() {
-		return typeAvatar;
+	public String getLabel() {
+		return label;
 	}
 
-	public static String returnMark() {
-		return typeMark;
+	public String getValue() {
+		return value;
 	}
 
-	public static String returnLibrary() {
-		return typeLibrary;
-	}
+	public void setLabel(String s) { label = s; }
+
+	public void setValue(String s) { value = s; }
 }
