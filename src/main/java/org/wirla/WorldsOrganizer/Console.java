@@ -51,14 +51,15 @@ public class Console {
     }
 
     public static boolean testURL(String address) throws IOException {
-        URL url = new URL(address);
-        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-        huc.setRequestMethod("HEAD");
-
         int responseCode;
         try {
+            URL url = new URL(address);
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+            huc.setRequestMethod("HEAD");
+            huc.setConnectTimeout(600);
+
             responseCode = huc.getResponseCode();
-        } catch (NoRouteToHostException|UnknownHostException e) {
+        } catch (SocketTimeoutException | NoRouteToHostException | UnknownHostException e) {
             responseCode = 404;
         }
 
