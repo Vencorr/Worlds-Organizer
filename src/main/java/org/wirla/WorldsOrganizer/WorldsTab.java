@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WorldsTab {
 
@@ -225,16 +226,19 @@ public class WorldsTab {
 
                 List<WorldTableItem> errorItems = new ArrayList<>();
 
+                AtomicBoolean haltThread = new AtomicBoolean(false);
+
                 Task<Boolean> task = new Task<Boolean>() {
                     @Override public Boolean call() {
 
                         for (int w = 0; w < ((TableView)content).getItems().size(); w++) {
+                            if (haltThread.get()) return true;
                             WorldList wl = (WorldList)((TableView)content).getItems().get(w);
 
                             String value = wl.getValue();
                             int index = ((TableView)content).getItems().indexOf(wl);
 
-                            WorldTableItem tabItem = new WorldTableItem(index, wl.getName(), value);
+                            WorldTableItem tabItem;
                             if (value.startsWith("http")) {
                                 try {
                                     if (!Console.testURL(value)) {
@@ -243,11 +247,12 @@ public class WorldsTab {
                                     } else {
                                         tabItem = new WorldTableItem(index, wl.getName(), value, true);
                                     }
+                                    checkTable.getItems().add(0, tabItem);
                                 } catch (IOException ioException) {
                                     ioException.printStackTrace();
                                     Dialog.showException(ioException);
+                                    return false;
                                 }
-                                checkTable.getItems().add(0, tabItem);
                             }
 
                             checkTable.refresh();
@@ -256,6 +261,8 @@ public class WorldsTab {
                         return true;
                     }
                 };
+
+
 
                 task.setOnRunning((a) -> alert.show());
                 task.setOnSucceeded((a) -> {
@@ -266,7 +273,13 @@ public class WorldsTab {
                     Dialog.showException(new Exception("Unknown"));
                     alert.close();
                 });
-                new Thread(task).start();
+                Thread taskTh = new Thread(task);
+                taskTh.start();
+
+                alert.setOnCloseRequest((a) -> {
+                    haltThread.set(true);
+                    alert.close();
+                });
 
             });
 
