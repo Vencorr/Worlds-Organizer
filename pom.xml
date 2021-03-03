@@ -6,7 +6,7 @@
 
     <groupId>org.wirla</groupId>
     <artifactId>WorldsOrganizer</artifactId>
-    <version>0.9.74-dev</version>
+    <version>0.9.75-dev</version>
 
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -48,11 +48,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
             <version>15.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>11.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
