@@ -74,6 +74,9 @@ public class Main extends Application {
 
 		Console.sendOutput("JavaFX Successfully Initialized", true);
 
+
+		// MenuBar
+		// Handles main operations not associated with the inner tabs.
 		ToolBar menuBar = new ToolBar();
 
 		Button newFileBtn = new Button("New");
@@ -98,9 +101,10 @@ public class Main extends Application {
 		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/quit.svg"))));
 		menuBar.getItems().add(quitBtn);
 
+		// TabPane initialization
 		tabPane = new TabPane();
 
-		Tab startTab = new Tab("Welcome", new WorldsTab().getStart());
+		Tab startTab = new WorldsTab().getTab();
 		startTab.setClosable(false);
 
 		tabPane.getTabs().add(startTab);
@@ -123,7 +127,7 @@ public class Main extends Application {
 
 		saveFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			WorldsTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
-			saveFile(tableObj, tableObj.ourFile);
+			saveFile(tableObj, tableObj.file);
 
 		});
 
@@ -238,7 +242,7 @@ public class Main extends Application {
 		WorldsTab tableObj = new WorldsTab();
 		WorldsType newType = Dialog.newFile();
 		if (newType != WorldsType.NULL) {
-			Tab tab = tableObj.getTable(null, newType);
+			Tab tab = tableObj.getTab(newType);
 
 			tabPane.getTabs().add(tab);
 			tables.add(tableObj);
@@ -263,7 +267,7 @@ public class Main extends Application {
 
 		if (openedFile != null) {
 			WorldsTab tableObj = new WorldsTab();
-			Tab tab = tableObj.getTable(openedFile, WorldsType.NULL);
+			Tab tab = tableObj.getTab(openedFile);
 
 			tabPane.getTabs().add(tab);
 			tables.add(tableObj);

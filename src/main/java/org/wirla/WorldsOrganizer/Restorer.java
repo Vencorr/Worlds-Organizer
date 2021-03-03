@@ -1,7 +1,6 @@
 package org.wirla.WorldsOrganizer;
 
 import java.io.*;
-import java.util.*;
 
 public class Restorer {
 
@@ -27,14 +26,14 @@ public class Restorer {
 		}
 	}
 
-	WorldListObject read() throws IOException, InvalidPersisterFile {
+	WorldListObject read() throws IOException, InvalidPersisterException {
 		if (dis == null) {
-			throw new InvalidPersisterFile();
+			throw new InvalidPersisterException();
 		}
 
 		try {
 			if (!readString().equals("PERSISTER Worlds, Inc.")) { // Persister Header
-				throw new InvalidPersisterFile();
+				throw new InvalidPersisterException();
 			} else {
 				int pVersion = readInt(); // Persister Version
 				Console.sendOutput("Persister Version detected as " + pVersion + ".");
@@ -46,7 +45,7 @@ public class Restorer {
 				return readVector(count);
 			}
 		} catch (NullPointerException e) {
-			throw new InvalidPersisterFile();
+			throw new InvalidPersisterException();
 		}
 	}
 
