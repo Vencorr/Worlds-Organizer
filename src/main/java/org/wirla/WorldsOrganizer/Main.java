@@ -13,19 +13,21 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class Main extends Application {
 
 	static boolean debugMode = false;
 
 	static List<File> startFiles = new ArrayList<>();
-	static List<TableTab> tables = new ArrayList<>();
+	static List<WorldsTab> tables = new ArrayList<>();
 	TabPane tabPane;
 
-	private Stage primaryStage;
+	public static Stage primaryStage;
 
 	public static void main(String[] args) {
 		Console.sendOutput("Worlds Organizer v" + Console.getVersion());
@@ -98,7 +100,7 @@ public class Main extends Application {
 
 		tabPane = new TabPane();
 
-		Tab startTab = new Tab("Welcome", new TableTab().getStart());
+		Tab startTab = new Tab("Welcome", new WorldsTab().getStart());
 		startTab.setClosable(false);
 
 		tabPane.getTabs().add(startTab);
@@ -120,13 +122,13 @@ public class Main extends Application {
 		});
 
 		saveFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			TableTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			WorldsTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
 			saveFile(tableObj, tableObj.ourFile);
 
 		});
 
 		saveAsFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			TableTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			WorldsTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
 			saveFile(tableObj);
 		});
 
@@ -153,13 +155,15 @@ public class Main extends Application {
 		} catch (Exception e) {
 			Console.sendOutput("No start files to iterate through!", true);
 		}
+
+		update();
 	}
 
-	void saveFile(TableTab table) {
+	void saveFile(WorldsTab table) {
 		saveFile(table, null);
 	}
 
-	void saveFile(TableTab tab, File file) {
+	void saveFile(WorldsTab tab, File file) {
 		File thisFile;
 		if (file == null) {
 			FileChooser fileChooser = new FileChooser();
@@ -175,10 +179,10 @@ public class Main extends Application {
 				switch (fileChooser.getSelectedExtensionFilter().getExtensions().get(0)) {
 					default:
 					case "*.avatars":
-						tab.dataType = 1;
+						tab.worldList.classType = WorldsType.AVATAR;
 						break;
 					case "*.worldsmarks":
-						tab.dataType = 2;
+						tab.worldList.classType = WorldsType.WORLDSMARK;
 						break;
 				}
 			}
@@ -189,7 +193,7 @@ public class Main extends Application {
 		if (thisFile != null) {
 			try {
 				Saver saver = new Saver(thisFile);
-				saver.save(tab.values, tab.dataType);
+				saver.save(tab.worldList);
 				tab.setSaved(true);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -200,7 +204,7 @@ public class Main extends Application {
 
 	void quit() {
 		boolean askForSure = false;
-		for (TableTab t : tables) {
+		for (WorldsTab t : tables) {
 			if (!t.getSaved()) {
 				askForSure = true;
 				break;
@@ -231,10 +235,10 @@ public class Main extends Application {
 	}
 
 	void newFile() {
-		TableTab tableObj = new TableTab();
-		int newType = Dialog.newFile();
-		if (newType != 0) {
-			Tab tab = tableObj.getObjectTab(null, newType);
+		WorldsTab tableObj = new WorldsTab();
+		WorldsType newType = Dialog.newFile();
+		if (newType != WorldsType.NULL) {
+			Tab tab = tableObj.getTable(null, newType);
 
 			tabPane.getTabs().add(tab);
 			tables.add(tableObj);
@@ -258,8 +262,8 @@ public class Main extends Application {
 		}
 
 		if (openedFile != null) {
-			TableTab tableObj = new TableTab();
-			Tab tab = tableObj.getObjectTab(openedFile, 0);
+			WorldsTab tableObj = new WorldsTab();
+			Tab tab = tableObj.getTable(openedFile, WorldsType.NULL);
 
 			tabPane.getTabs().add(tab);
 			tables.add(tableObj);
@@ -267,6 +271,22 @@ public class Main extends Application {
 			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
 		} else {
 			Console.sendOutput("Error encountered while attempting open. FileDialog closed?", true);
+		}
+	}
+
+	public void update() {
+		Version curVer = new Version(Console.getVersion());
+		try {
+			URL url = new URL("https://wirlaburla.com/WorldsOrganizer/dw/ver.txt");
+			Scanner s = new Scanner(url.openStream());
+			Version newVer = new Version(s.next());
+			if (newVer.compareTo(curVer) >= 1) {
+				Console.sendOutput("Update available! " + curVer.get() + " < " + newVer.get());
+				Dialog.showUpdate(newVer);
+			}
+			s.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

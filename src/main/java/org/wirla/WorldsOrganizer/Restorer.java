@@ -8,7 +8,7 @@ public class Restorer {
 	DataInputStream dis;
 
 	File file;
-	public int type;
+	public WorldListObject listObj;
 
 	private int oID;
 
@@ -27,7 +27,7 @@ public class Restorer {
 		}
 	}
 
-	List<WorldDataObject> getValues() throws IOException, InvalidPersisterFile {
+	WorldListObject read() throws IOException, InvalidPersisterFile {
 		if (dis == null) {
 			throw new InvalidPersisterFile();
 		}
@@ -50,27 +50,31 @@ public class Restorer {
 		}
 	}
 
-	private List<WorldDataObject> readVector(int count) throws IOException {
+	private WorldListObject readVector(int count) throws IOException {
 		Console.sendOutput("Starting read of " + file.getPath(), true);
 
-		List<WorldDataObject> vList = new ArrayList<WorldDataObject>(count);
+		listObj = new WorldListObject();
 
 		oID = readInt(); // Object ID
 		String typeText = readString(); // Class Name
-		if (WorldDataObject.isType(typeText)) {
-			this.type = WorldDataObject.getTypeInt(typeText);
+		listObj.classType = WorldsType.valueOfClass(typeText);
+		if (listObj.classType != null) {
 			Console.sendOutput("Detected as supported class. Continuing...", true);
 
 			for (int i = 0; i < count; i++) {
 				if (i > 0) readInt();
 				int version = readInt();
-				WorldDataObject curW = new WorldDataObject(this.type, version, readString(), readString());
-				vList.add(curW);
+
+				WorldList newData = null;
+				if (listObj.classType == WorldsType.AVATAR) newData = new AvatarObject(readString(), readString());
+				else if (listObj.classType == WorldsType.WORLDSMARK) newData = new MarkObject(readString(), readString());
+				assert newData != null;
+				listObj.add(newData);
 			}
 			assert readString().equals("END PERSISTER");
 		}
 
-		return vList;
+		return listObj;
 	}
 
 	String readString() throws IOException {

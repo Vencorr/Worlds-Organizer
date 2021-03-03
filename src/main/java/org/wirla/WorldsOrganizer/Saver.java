@@ -25,20 +25,20 @@ public class Saver {
 		writeInt(7); // Persister version
 	}
 
-	public void save(List<WorldDataObject> objects, int type) throws IOException {
+	public void save(WorldListObject objects) throws IOException {
 		int count = objects.size();
 		writeInt(count);
 		writeInt(459);
 		int objID = 8782;
 		writeInt(objID);
-		writeString(WorldDataObject.getTypeString(type));
+		writeString(objects.classType.name);
 		for (int i = 0; i < count; i++) {
 			if (i > 0) {
 				writeInt(460 + i);
 				writeInt(objID);
 			}
 			else writeInt(1);
-			writeString(objects.get(i).getLabel());
+			writeString(objects.get(i).getName());
 			writeString(objects.get(i).getValue());
 		}
 		writeString("END PERSISTER");

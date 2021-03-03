@@ -1,6 +1,7 @@
 package org.wirla.WorldsOrganizer;
 
 import java.io.IOException;
+import java.net.*;
 import java.util.Properties;
 
 public class Console {
@@ -47,6 +48,21 @@ public class Console {
 
     private static String commandCreate(String cmd, String info) {
         return "     " + cmd + "                         ".substring(cmd.length()) + info;
+    }
+
+    public static boolean testURL(String address) throws IOException {
+        URL url = new URL(address);
+        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+        huc.setRequestMethod("HEAD");
+
+        int responseCode;
+        try {
+            responseCode = huc.getResponseCode();
+        } catch (NoRouteToHostException|UnknownHostException e) {
+            responseCode = 404;
+        }
+
+        return HttpURLConnection.HTTP_OK == responseCode;
     }
 
 }
