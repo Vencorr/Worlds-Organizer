@@ -56,7 +56,7 @@ public class Console {
             URL url = new URL(address);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             huc.setRequestMethod("HEAD");
-            huc.setConnectTimeout(600);
+            huc.setConnectTimeout(15000);
 
             responseCode = huc.getResponseCode();
         } catch (SocketTimeoutException | NoRouteToHostException | UnknownHostException e) {
