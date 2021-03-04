@@ -14,6 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorldsTab {
 
@@ -28,7 +30,6 @@ public class WorldsTab {
 
     Tab tab = null;
     Control content = null;
-    TableView<WorldList> table = null;
     Pane mainPane;
 
     private boolean modified = false;
@@ -254,7 +255,6 @@ public class WorldsTab {
                                     return false;
                                 }
                             }
-
                             checkTable.refresh();
                         }
 
@@ -338,7 +338,7 @@ public class WorldsTab {
     }
 
     public void delValue(int i) {
-        assert table != null;
+        assert content instanceof TableView;
 
         worldList.remove(i);
         ((TableView)content).getItems().remove(i);
@@ -347,7 +347,7 @@ public class WorldsTab {
     }
 
     public void moveValue(int i,int moveBy) {
-        assert table != null;
+        assert content instanceof TableView;
 
         WorldList row = worldList.get(i);
 
@@ -439,17 +439,19 @@ public class WorldsTab {
     }
 
     public void showLinkResults(List<WorldTableItem> list) {
+        AtomicInteger addition = new AtomicInteger();
+        addition.set(0);
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.getDialogPane().setMinWidth(600);
+        alert.getDialogPane().setMinWidth(800);
         alert.setResizable(true);
         alert.setTitle("Link Checker Results");
-        alert.setHeaderText("The followings links have been found to be dead.");
+        alert.setHeaderText("The followings links have been found to be dead: " + list.size() + " out of " + worldList.size());
 
-        ButtonType deleteBtn = new ButtonType("Delete All");
-        ButtonType closeBtn = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+        Button deleteBtn = new Button("Delete");
+        Button deleteAllBtn = new Button("Delete All");
 
         TableView<WorldTableItem> errorTable = new TableView<>();
-        errorTable.setEditable(false);
+        errorTable.setEditable(true);
 
         errorTable.setMaxWidth(Double.MAX_VALUE);
         errorTable.setMaxHeight(Double.MAX_VALUE);
@@ -459,40 +461,62 @@ public class WorldsTab {
         TableColumn<WorldTableItem, Integer> indexColumn = new TableColumn<>("#");
         indexColumn.prefWidthProperty().bind(errorTable.widthProperty().multiply(0.05));
         indexColumn.setCellValueFactory(new PropertyValueFactory<>("index"));
+        indexColumn.setEditable(false);
 
         TableColumn<WorldTableItem, String> labelColumn = new TableColumn<>("Label");
         labelColumn.prefWidthProperty().bind(errorTable.widthProperty().multiply(0.4));
         labelColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        labelColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
+        labelColumn.setEditable(true);
+        labelColumn.setOnEditCommit(t -> {
+            t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
+            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getNewValue());
+            ((TableView)content).refresh();
+            setSaved(false);
+        });
 
         TableColumn<WorldTableItem, String> valueColumn = new TableColumn<>("Value");
         valueColumn.prefWidthProperty().bind(errorTable.widthProperty().multiply(0.525));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+        valueColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
+        valueColumn.setEditable(true);
+        valueColumn.setOnEditCommit(t -> {
+            t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
+            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getNewValue());
+            ((TableView)content).refresh();
+            setSaved(false);
+        });
 
         for (WorldTableItem item : list) {
             errorTable.getItems().add(item);
         }
 
-        GridPane content = new GridPane();
-        content.setMaxWidth(Double.MAX_VALUE);
-        content.add(errorTable, 0, 0);
 
-        errorTable.getColumns().add(indexColumn);
-        errorTable.getColumns().add(labelColumn);
-        errorTable.getColumns().add(valueColumn);
+        ToolBar btnBar = new ToolBar();
+        btnBar.getItems().addAll(deleteBtn, deleteAllBtn);
 
-        alert.getButtonTypes().setAll(deleteBtn, closeBtn);
-        alert.getDialogPane().setContent(content);
+        errorTable.getColumns().addAll(indexColumn, labelColumn, valueColumn);
 
-        Optional<ButtonType> result = alert.showAndWait();
+        VBox vBox = new VBox(errorTable, btnBar);
 
-        if (result.get() == deleteBtn) {
-            int addition = 0;
+        alert.getDialogPane().setContent(vBox);
+
+        deleteBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            int selected = errorTable.getSelectionModel().getSelectedIndex();
+            delValue((errorTable.getItems().get(selected)).getIndex() + addition.get());
+            errorTable.getItems().remove(selected);
+            addition.getAndDecrement();
+        });
+
+        deleteAllBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             for (WorldTableItem item : list) {
-                delValue(item.getIndex() + addition);
-                addition--;
+                errorTable.getItems().remove(0);
+                delValue(item.getIndex() + addition.get());
+                addition.getAndDecrement();
             }
-        }
-        alert.close();
+        });
+
+        alert.showAndWait();
     }
 
     private String tabTitle() {

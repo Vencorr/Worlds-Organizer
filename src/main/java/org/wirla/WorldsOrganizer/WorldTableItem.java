@@ -1,6 +1,6 @@
 package org.wirla.WorldsOrganizer;
 
-public class WorldTableItem {
+public class WorldTableItem implements WorldList {
     private int index;
     private String name;
     private String value;
