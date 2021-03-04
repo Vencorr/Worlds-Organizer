@@ -4,7 +4,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 public class Saver {
 
@@ -13,6 +12,7 @@ public class Saver {
 	File file;
 
 	Saver(File file) throws IOException {
+		Console.sendOutput("Initialized Saver", true);
 		this.file = file;
 		try {
 			FileOutputStream fis = new FileOutputStream(file);
@@ -40,6 +40,7 @@ public class Saver {
 			else writeInt(1);
 			writeString(objects.get(i).getName());
 			writeString(objects.get(i).getValue());
+			Console.sendOutput("Saved WorldList item to file: { name: '" + objects.get(i).getName() + "', value: '" + objects.get(i).getValue() + "' }", true);
 		}
 		writeString("END PERSISTER");
 	}

@@ -88,7 +88,7 @@ public class Dialog {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Update Dialog");
         alert.setHeaderText("A new version is available to download.");
-        alert.setContentText("You are currently on " + Console.getVersion() + " which is older than " + newVer.get() + ".");
+        alert.setContentText("There is a newer version available for download. Version v" + newVer.get() + " is newer than v" + Console.getVersion() + ".");
 
         ButtonType updateButton = new ButtonType("Update");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -100,15 +100,30 @@ public class Dialog {
         if (result.get() == updateButton) {
             try {
                 if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    Desktop.getDesktop().browse(new URI("https://wirlaburla.com/WorldsOrganizer/download"));
+                    Desktop.getDesktop().browse(new URI("https://wirlaburla.com/WorldsOrganizer/download.php"));
                 } else {
                     showError("An error occurred attempting to show you a webpage.", "Desktop not supported for Action.BROWSE.");
                 }
             } catch (URISyntaxException | IOException e) {
+                showException(e);
                 e.printStackTrace();
             }
         } else {
             alert.close();
         }
+    }
+
+    public static void process() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Message");
+        alert.setHeaderText(
+                "For all you give me, an " + "ea" + "st" + "er" + " " + "e" + "gg" + " for you."
+        );
+        alert.setContentText(
+                "I" + " l" + "ov" + "e" + " yo" + "u," + "DO" + "SF" + "OX" + "!"
+        );
+
+        alert.getDialogPane().setMinSize(200,200);
+        alert.showAndWait();
     }
 }

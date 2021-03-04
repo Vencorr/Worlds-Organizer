@@ -5,16 +5,16 @@ import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.Window;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,28 +32,12 @@ public class WorldsTab {
     Control content = null;
     Pane mainPane;
 
+    private boolean showingFinder = false;
     private boolean modified = false;
 
     WorldListObject worldList = new WorldListObject();
 
     public WorldsTab() {
-    }
-
-    public Tab getTab() {
-        VBox vibby = new VBox();
-        vibby.setAlignment(Pos.CENTER);
-
-        ImageView logoView = new ImageView(new Image(Main.class.getResourceAsStream("/logo.png")));
-        Text text1 = new Text("Worlds Organizer v" + Console.getVersion());
-        text1.setStyle("-fx-font-size: 20;");
-
-        Text text2 = new Text("Created and Maintained by Wirlaburla");
-
-        Text text3 = new Text("Built on " + Console.getDate());
-
-        vibby.getChildren().addAll(logoView, text1, text2, text3);
-
-        return new Tab("Start Page", vibby);
     }
 
     public Tab getTab(File file) {
@@ -108,6 +92,7 @@ public class WorldsTab {
         if (mainPane != null) {
             return mainPane;
         } else {
+            HBox hBox = null;
             content = new TableView<WorldList>();
             ((TableView)content).setEditable(true);
 
@@ -119,74 +104,89 @@ public class WorldsTab {
             addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
             toolBar.getItems().add(addBtn);
 
-            Button delBtn = new Button();
-            delBtn.setTooltip(new Tooltip("Delete Value"));
-            delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
-            toolBar.getItems().add(delBtn);
-
-            Button mupBtn = new Button();
-            mupBtn.setTooltip(new Tooltip("Move Value Up"));
-            mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/up.svg"))));
-            toolBar.getItems().add(mupBtn);
-
-            Button mdwBtn = new Button();
-            mdwBtn.setTooltip(new Tooltip("Move Value Down"));
-            mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/down.svg"))));
-            toolBar.getItems().add(mdwBtn);
-
-            toolBar.getItems().add(new Separator());
-
-            Button checkBtn = new Button();
-            checkBtn.setTooltip(new Tooltip("Link Checker"));
-            checkBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/link.svg"))));
-            toolBar.getItems().add(checkBtn);
-
             addBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                int tabIndex = Main.tables.indexOf(this);
+                int tabIndex = Main.tabs.indexOf(this);
 
                 if (tabIndex >= 0) {
                     this.addValue();
                     this.setFocus(((TableView)content).getItems().size() - 1);
 
-                    Main.tables.set(tabIndex, this);
+                    Main.tabs.set(tabIndex, this);
                 }
             });
 
+            Button delBtn = new Button();
+            delBtn.setTooltip(new Tooltip("Delete Value"));
+            delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+            toolBar.getItems().add(delBtn);
+
             delBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                int tabIndex = Main.tables.indexOf(this);
+                int tabIndex = Main.tabs.indexOf(this);
 
                 if (tabIndex >= 0) {
                     int index = ((TableView)content).getSelectionModel().getFocusedIndex();
                     this.delValue(index);
                     this.setFocus(index < ((TableView)content).getItems().size() ? index : index - 1);
 
-                    Main.tables.set(tabIndex, this);
+                    Main.tabs.set(tabIndex, this);
                 }
             });
 
+            Button mupBtn = new Button();
+            mupBtn.setTooltip(new Tooltip("Move Value Up"));
+            mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/up.svg"))));
+            toolBar.getItems().add(mupBtn);
+
             mupBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                int tabIndex = Main.tables.indexOf(this);
+                int tabIndex = Main.tabs.indexOf(this);
 
                 if (tabIndex >= 0) {
                     int index = ((TableView)content).getSelectionModel().getFocusedIndex();
                     this.moveValue(index, -1);
                     this.setFocus(index - 1);
 
-                    Main.tables.set(tabIndex, this);
+                    Main.tabs.set(tabIndex, this);
                 }
             });
 
+            Button mdwBtn = new Button();
+            mdwBtn.setTooltip(new Tooltip("Move Value Down"));
+            mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/down.svg"))));
+            toolBar.getItems().add(mdwBtn);
+
             mdwBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                int tabIndex = Main.tables.indexOf(this);
+                int tabIndex = Main.tabs.indexOf(this);
 
                 if (tabIndex >= 0) {
                     int index = ((TableView)content).getSelectionModel().getFocusedIndex();
                     this.moveValue(index, 1);
                     this.setFocus(index + 1);
 
-                    Main.tables.set(tabIndex, this);
+                    Main.tabs.set(tabIndex, this);
                 }
             });
+
+            toolBar.getItems().add(new Separator());
+
+            Button findBtn = new Button();
+            findBtn.setTooltip(new Tooltip("Find/Replace"));
+            findBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/find.svg"))));
+            toolBar.getItems().add(findBtn);
+
+            VBox findingBox = getFindPane();
+            findingBox.setVisible(false);
+            findingBox.setManaged(false);
+
+            findBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                findingBox.setManaged(!showingFinder);
+                findingBox.setVisible(!showingFinder);
+                showingFinder = !showingFinder;
+            });
+
+            Button checkBtn = new Button();
+            checkBtn.setTooltip(new Tooltip("Link Checker"));
+            checkBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/link.svg"))));
+            toolBar.getItems().add(checkBtn);
 
             checkBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -320,7 +320,7 @@ public class WorldsTab {
             HBox.setHgrow(content, Priority.ALWAYS);
             HBox.setHgrow(toolBar, Priority.ALWAYS);
 
-            HBox hBox = new HBox(toolBar, content);
+            hBox = new HBox(toolBar, content, findingBox);
             VBox.setVgrow(hBox, Priority.ALWAYS);
 
             return hBox;
@@ -390,7 +390,7 @@ public class WorldsTab {
 
     private void closeTab() {
         int index = tab.getTabPane().getSelectionModel().getSelectedIndex() - 1;
-        Main.tables.remove(index);
+        Main.tabs.remove(index);
 
         EventHandler<Event> handler = tab.getOnClosed();
         if (null != handler) {
@@ -506,6 +506,7 @@ public class WorldsTab {
             int selected = errorTable.getSelectionModel().getSelectedIndex();
             delValue((errorTable.getItems().get(selected)).getIndex() + addition.get());
             errorTable.getItems().remove(selected);
+            list.remove(selected);
             addition.getAndDecrement();
         });
 
@@ -533,6 +534,56 @@ public class WorldsTab {
                     return "Untitled.worldsmarks";
             }
         }
+    }
+
+    private VBox getFindPane() {
+        Text title = new Text("Find/Replace");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 16));
+
+        Text findText = new Text("Find Text");
+        findText.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
+        TextField findInput = new TextField();
+
+        Text replText = new Text("Replace Text");
+        replText.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
+        TextField replInput = new TextField();
+
+        ButtonBar bBar = new ButtonBar();
+
+        Button findButton = new Button("Find");
+        findButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            int curI = ((TableView)content).getSelectionModel().getSelectedIndex();
+            if (curI < 0) curI = 0;
+            for (int a = curI+1; a < worldList.size(); a++) {
+                if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
+                    setFocus(a);
+                    break;
+                }
+            }
+        });
+
+        Button replButton = new Button("Replace");
+        replButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            WorldList item = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
+            item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+            ((TableView)content).refresh();
+            setSaved(false);
+        });
+
+        Button replAllButton = new Button("Replace All");
+        replAllButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            for (int a = 0; a < worldList.size(); a++) {
+                WorldList item = (WorldList)((TableView)content).getItems().get(a);
+                if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
+                    item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                }
+            }
+            ((TableView)content).refresh();
+            setSaved(false);
+        });
+
+        bBar.getButtons().addAll(findButton, replButton, replAllButton);
+        return new VBox(title, findText, findInput, replText, replInput, bBar);
     }
     
 }

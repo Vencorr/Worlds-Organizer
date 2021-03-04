@@ -1,18 +1,24 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +30,7 @@ public class Main extends Application {
 	static boolean debugMode = false;
 
 	static List<File> startFiles = new ArrayList<>();
-	static List<WorldsTab> tables = new ArrayList<>();
+	static List<WorldsTab> tabs = new ArrayList<>();
 	TabPane tabPane;
 
 	public static Stage primaryStage;
@@ -64,16 +70,13 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage pStage) throws Exception {
-		this.primaryStage = pStage;
+		primaryStage = pStage;
 		primaryStage.setTitle("Worlds Organizer v" + Console.getVersion());
 		primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("/icon.png")));
 
 		primaryStage.setOnCloseRequest(a -> {
 			quit();
 		});
-
-		Console.sendOutput("JavaFX Successfully Initialized", true);
-
 
 		// MenuBar
 		// Handles main operations not associated with the inner tabs.
@@ -104,21 +107,36 @@ public class Main extends Application {
 		// TabPane initialization
 		tabPane = new TabPane();
 
-		Tab startTab = new WorldsTab().getTab();
+		Tab startTab = getStartPage();
 		startTab.setClosable(false);
 
 		tabPane.getTabs().add(startTab);
 
 		tabPane.addEventFilter(Tab.CLOSED_EVENT, f -> {
 			Console.sendOutput("Detected Tab Closed. Index " + (tabPane.getSelectionModel().getSelectedIndex() - 1) + ".", true);
-			tables.remove(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			tabs.remove(tabPane.getSelectionModel().getSelectedIndex() - 1);
 		});
 
 		VBox vBox = new VBox(menuBar, tabPane);
 		Console.sendOutput("Completed Base Window Initialization", true);
 
 		newFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			newFile();
+			if (e.isShiftDown()) {
+				try {
+					WorldListObject tempW = tabs.get(0).worldList;
+					if (tempW.size() <= 1) {
+						if (
+								tempW.get(0).getName().equals(
+										"D" + "F"
+								) && tempW.get(0).getValue().equals(
+										"6" + "/" + "2" + "7" + "/" + "2" + "0"
+								)
+						) {
+							Console.process();
+						}
+					}
+				} catch (NullPointerException | IndexOutOfBoundsException ignored) {}
+			} else newFile();
 		});
 
 		openFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -126,13 +144,13 @@ public class Main extends Application {
 		});
 
 		saveFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			WorldsTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			WorldsTab tableObj = tabs.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
 			saveFile(tableObj, tableObj.file);
 
 		});
 
 		saveAsFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			WorldsTab tableObj = tables.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			WorldsTab tableObj = tabs.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
 			saveFile(tableObj);
 		});
 
@@ -161,6 +179,82 @@ public class Main extends Application {
 		}
 
 		update();
+	}
+
+	public Tab getStartPage() {
+		HBox mainBox = new HBox();
+
+		Console.sendOutput("Processing Start Page", true);
+
+		ImageView logoView = new ImageView(new Image(Main.class.getResourceAsStream("/logo.png")));
+		Text nameTxt = new Text("Worlds Organizer v" + Console.getVersion());
+		nameTxt.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
+		Text buildTxt = new Text("Build Date: " + Console.getDate());
+		buildTxt.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
+		buildTxt.setFill(Color.GRAY);
+		Text devTxt = new Text("Developed by Nicholas George");
+		devTxt.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.REGULAR, 12));
+
+		VBox leftV = new VBox(logoView, nameTxt, buildTxt, devTxt);
+		leftV.setAlignment(Pos.CENTER);
+
+		Text changelogTitle = new Text("Changelogs");
+		changelogTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 16));
+
+		TextArea changelog = new TextArea(changelog());
+		changelog.setEditable(false);
+		changelog.setWrapText(true);
+
+		VBox.setVgrow(changelog, Priority.ALWAYS);
+		VBox rightV = new VBox(changelogTitle, changelog);
+
+		HBox.setHgrow(leftV, Priority.ALWAYS);
+		HBox.setHgrow(rightV, Priority.ALWAYS);
+		mainBox.getChildren().addAll(leftV, rightV);
+		return new Tab("Start Page", mainBox);
+	}
+
+	void newFile() {
+		WorldsTab tableObj = new WorldsTab();
+		WorldsType newType = Dialog.newFile();
+		if (newType != WorldsType.NULL) {
+			Console.sendOutput("Starting New Tab", true);
+
+			Tab tab = tableObj.getTab(newType);
+
+			tabPane.getTabs().add(tab);
+			tabs.add(tableObj);
+
+			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+		}
+	}
+
+	void openFile(File file) {
+		File openedFile;
+		if (file == null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Open File");
+			fileChooser.getExtensionFilters().addAll(
+					new FileChooser.ExtensionFilter("All Supported Formats", "*.avatars", "*.worldsmarks"),
+					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
+					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
+			);
+			openedFile = fileChooser.showOpenDialog(primaryStage);
+		} else {
+			openedFile = file;
+		}
+
+		if (openedFile != null) {
+			WorldsTab tableObj = new WorldsTab();
+			Tab tab = tableObj.getTab(openedFile);
+
+			tabPane.getTabs().add(tab);
+			tabs.add(tableObj);
+
+			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
+		} else {
+			Console.sendOutput("FileDialog closed?", true);
+		}
 	}
 
 	void saveFile(WorldsTab table) {
@@ -208,7 +302,7 @@ public class Main extends Application {
 
 	void quit() {
 		boolean askForSure = false;
-		for (WorldsTab t : tables) {
+		for (WorldsTab t : tabs) {
 			if (!t.getSaved()) {
 				askForSure = true;
 				break;
@@ -238,46 +332,6 @@ public class Main extends Application {
 		}
 	}
 
-	void newFile() {
-		WorldsTab tableObj = new WorldsTab();
-		WorldsType newType = Dialog.newFile();
-		if (newType != WorldsType.NULL) {
-			Tab tab = tableObj.getTab(newType);
-
-			tabPane.getTabs().add(tab);
-			tables.add(tableObj);
-
-			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
-		}
-	}
-
-	void openFile(File file) {
-		File openedFile;
-		if (file == null) {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Open File");
-			fileChooser.getExtensionFilters().addAll(
-					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
-					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
-			);
-			openedFile = fileChooser.showOpenDialog(primaryStage);
-		} else {
-			openedFile = file;
-		}
-
-		if (openedFile != null) {
-			WorldsTab tableObj = new WorldsTab();
-			Tab tab = tableObj.getTab(openedFile);
-
-			tabPane.getTabs().add(tab);
-			tables.add(tableObj);
-
-			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
-		} else {
-			Console.sendOutput("Error encountered while attempting open. FileDialog closed?", true);
-		}
-	}
-
 	public void update() {
 		Version curVer = new Version(Console.getVersion());
 		try {
@@ -292,5 +346,23 @@ public class Main extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public String changelog() {
+		// Main.class.getResourceAsStream("/changelog.txt")
+		StringBuilder contentBuilder = new StringBuilder();
+
+		try {
+			String text;
+			InputStream inputStream = Main.class.getResourceAsStream("/changelog.txt");
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+			while ((text = bufferedReader.readLine()) != null ) {
+				contentBuilder.append(text + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return contentBuilder.toString();
 	}
 }

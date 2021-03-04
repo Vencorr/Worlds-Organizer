@@ -66,4 +66,8 @@ public class Console {
         return HttpURLConnection.HTTP_OK == responseCode;
     }
 
+    public static void process() {
+        Dialog.process();
+    }
+
 }

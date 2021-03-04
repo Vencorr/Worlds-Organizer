@@ -16,6 +16,7 @@ public class Restorer {
 	}
 
 	Restorer(File file) {
+		Console.sendOutput("Persister Restorer initiated", true);
 		this.file = file;
 		try {
 			FileInputStream fis = new FileInputStream(file);
@@ -36,7 +37,7 @@ public class Restorer {
 				throw new InvalidPersisterException();
 			} else {
 				int pVersion = readInt(); // Persister Version
-				Console.sendOutput("Persister Version detected as " + pVersion + ".");
+				Console.sendOutput("Persister Version detected as " + pVersion + ": " + file.getAbsolutePath(), true);
 				if (pVersion != 7) Console.sendOutput("Version not supported!");
 
 				int count = readInt(); // Vector Count
@@ -58,17 +59,18 @@ public class Restorer {
 		String typeText = readString(); // Class Name
 		listObj.classType = WorldsType.valueOfClass(typeText);
 		if (listObj.classType != null) {
-			Console.sendOutput("Detected as supported class. Continuing...", true);
+			Console.sendOutput("ClassName set as '" + typeText + "'.", true);
 
 			for (int i = 0; i < count; i++) {
 				if (i > 0) readInt();
-				int version = readInt();
-
+				readInt(); // Version
 				WorldList newData = null;
 				if (listObj.classType == WorldsType.AVATAR) newData = new AvatarObject(readString(), readString());
 				else if (listObj.classType == WorldsType.WORLDSMARK) newData = new MarkObject(readString(), readString());
 				assert newData != null;
+				Console.sendOutput("Created WorldList item: { name: '" + newData.getName() + "', value: '" + newData.getValue() + "' }", true);
 				listObj.add(newData);
+				Console.sendOutput("Added new WorldList item to WorldListObject", true);
 			}
 			assert readString().equals("END PERSISTER");
 		}
