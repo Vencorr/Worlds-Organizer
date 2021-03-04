@@ -361,6 +361,7 @@ public class WorldsTab {
 
     public void setFocus(int i) {
         ((TableView)content).getSelectionModel().select(i);
+        ((TableView)content).scrollTo(i);
     }
 
     private void quitTab() {
