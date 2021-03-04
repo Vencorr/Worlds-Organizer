@@ -1,37 +1,17 @@
-## Welcome to GitHub Pages
+# Worlds Organizer
 
-You can use the [editor on GitHub](https://github.com/Vencorr/Worlds-Organizer/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+![]()
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+A tool to organize yourself on Worlds.com, using the WorldsPlayer.
 
-### Markdown
+This tool allows you to edit your WorldsMarks and Avatars to manage and organize them. Stay away from those clunky barebones tools the actual clieng gives you and actually view all your stuff all at once on a single window that allows you to edit, move, add, and delete values.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## How to use?
 
-```markdown
-Syntax highlighted code block
+WorldsOrganizer is simple to use. The WorldsPlayer client saves it's avatars and worldsmarks lists in their own files, named 'gamma.avatars' and 'gamma.worldsmarks' respectively. Simply navigate to the root of your Worlds folder and open these files up in the program. Or instead, you could make a new file and populate that, replacing the originals.
 
-# Header 1
-## Header 2
-### Header 3
+Using the interface is quite simple. The top bar of buttons are general use case buttons. Anything relating to the actual modification of a file is on the sides inside the tab of the file. For example, avatars and worldsmarks will display a table, and to the left of that table are the buttons used to modify it. You'll also see other features as they make their way into the software.
 
-- Bulleted
-- List
+## How to run
 
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Vencorr/Worlds-Organizer/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+WorldsOrganizer is a Java application, and uses JavaFX in order to render graphical components. This should work natively with your Operating System if it supports atleast JRE8. Any lower will not work!
