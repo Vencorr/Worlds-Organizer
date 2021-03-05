@@ -4,6 +4,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -92,7 +93,6 @@ public class WorldsTab {
         if (mainPane != null) {
             return mainPane;
         } else {
-            HBox hBox = null;
             content = new TableView<WorldList>();
             ((TableView)content).setEditable(true);
 
@@ -174,6 +174,7 @@ public class WorldsTab {
             toolBar.getItems().add(findBtn);
 
             VBox findingBox = getFindPane();
+            VBox.setVgrow(findingBox, Priority.ALWAYS);
             findingBox.setVisible(false);
             findingBox.setManaged(false);
 
@@ -317,11 +318,13 @@ public class WorldsTab {
 
             ((TableView)content).getColumns().addAll(indexColumn, labelColumn, valueColumn);
 
-            HBox.setHgrow(content, Priority.ALWAYS);
+            VBox.setVgrow(content, Priority.ALWAYS);
             HBox.setHgrow(toolBar, Priority.ALWAYS);
 
-            hBox = new HBox(toolBar, content, findingBox);
-            VBox.setVgrow(hBox, Priority.ALWAYS);
+            VBox endV = new VBox(content, findingBox);
+            HBox.setHgrow(endV, Priority.ALWAYS);
+
+            HBox hBox = new HBox(toolBar, endV);
 
             return hBox;
         }
@@ -537,9 +540,6 @@ public class WorldsTab {
     }
 
     private VBox getFindPane() {
-        Text title = new Text("Find/Replace");
-        title.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 16));
-
         Text findText = new Text("Find Text");
         findText.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
         TextField findInput = new TextField();
@@ -548,7 +548,7 @@ public class WorldsTab {
         replText.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
         TextField replInput = new TextField();
 
-        ButtonBar bBar = new ButtonBar();
+        GridPane findBar = new GridPane();
 
         Button findButton = new Button("Find");
         findButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -582,8 +582,28 @@ public class WorldsTab {
             setSaved(false);
         });
 
-        bBar.getButtons().addAll(findButton, replButton, replAllButton);
-        return new VBox(title, findText, findInput, replText, replInput, bBar);
+        ButtonBar btns = new ButtonBar();
+        btns.getButtons().addAll(findButton, replButton, replAllButton);
+        GridPane.setColumnSpan(btns, 2);
+
+        findBar.add(findText, 0, 0);
+        findBar.add(findInput, 1, 0);
+
+        findBar.add(replText, 0, 1);
+        findBar.add(replInput, 1, 1);
+
+        findBar.add(btns, 0, 2);
+
+        GridPane.setHgrow(findInput, Priority.ALWAYS);
+        GridPane.setHgrow(replInput, Priority.ALWAYS);
+        GridPane.setHgrow(btns, Priority.ALWAYS);
+        findBar.setHgap(5);
+        findBar.setVgap(5);
+
+        findBar.setPadding(new Insets(10, 10, 10, 10));
+        VBox.setVgrow(findBar, Priority.ALWAYS);
+
+        return new VBox(findBar);
     }
     
 }

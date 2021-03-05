@@ -1,8 +1,10 @@
+>> master
+• Move Find/Replace pane to bottom instead of right side.
+
 >> 0.9.77
 • Improved Start Page
 • Implemented Find/Replace feature
 • Verbose logging is now more 'verbose'
-•
 
 >> 0.9.76
 • Refactored entire Tab code.
