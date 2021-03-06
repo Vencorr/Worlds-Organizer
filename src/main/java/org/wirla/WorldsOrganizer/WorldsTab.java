@@ -508,7 +508,7 @@ public class WorldsTab {
         deleteBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             int selected = errorTable.getSelectionModel().getSelectedIndex();
             WorldTableItem selectedItem = errorTable.getItems().get(selected);
-            deleteItem((errorTable.getItems().get(selected)).getIndex() + addition.get());
+            delValue((errorTable.getItems().get(selected)).getIndex() + addition.get());
             errorTable.getItems().remove(selected);
             list.remove(selected);
             addition.getAndDecrement();
@@ -517,7 +517,7 @@ public class WorldsTab {
         deleteAllBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             for (WorldTableItem item : list) {
                 errorTable.getItems().remove(0);
-                deleteItem(item.getIndex() + addition.get());
+                delValue(item.getIndex() + addition.get());
                 addition.getAndDecrement();
             }
         });
