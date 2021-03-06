@@ -590,14 +590,8 @@ public class WorldsTab {
             for (int a = 0; a < worldList.size(); a++) {
                 WorldList item = (WorldList)((TableView)content).getItems().get(a);
                 if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
-                    item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                    for (int a = 0; a < worldList.size(); a++) {
-                        WorldList item = (WorldList)((TableView)content).getItems().get(a);
-                        if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
-                            if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                            if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
-                        }
-                    }
+                    if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                    if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
                 }
             }
             ((TableView)content).refresh();
