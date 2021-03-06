@@ -473,23 +473,10 @@ public class WorldsTab {
         labelColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
         labelColumn.setEditable(true);
         labelColumn.setOnEditCommit(t -> {
-            commandStack.doCommand(new Command() {
-                @Override
-                public void execute() {
-                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
-                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getNewValue());
-                    ((TableView)content).refresh();
-                    setSaved(false);
-                }
-
-                @Override
-                public void undo() {
-                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getOldValue());
-                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getOldValue());
-                    ((TableView)content).refresh();
-                    setSaved(false);
-                }
-            });
+            t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
+            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getNewValue());
+            ((TableView)content).refresh();
+            setSaved(false);
         });
 
         TableColumn<WorldTableItem, String> valueColumn = new TableColumn<>("Value");
@@ -498,23 +485,10 @@ public class WorldsTab {
         valueColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
         valueColumn.setEditable(true);
         valueColumn.setOnEditCommit(t -> {
-            commandStack.doCommand(new Command() {
-                @Override
-                public void execute() {
-                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
-                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getNewValue());
-                    ((TableView)content).refresh();
-                    setSaved(false);
-                }
-
-                @Override
-                public void undo() {
-                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getOldValue());
-                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getOldValue());
-                    ((TableView)content).refresh();
-                    setSaved(false);
-                }
-            });
+            t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
+            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getNewValue());
+            ((TableView)content).refresh();
+            setSaved(false);
         });
 
         for (WorldTableItem item : list) {
@@ -532,44 +506,20 @@ public class WorldsTab {
         alert.getDialogPane().setContent(vBox);
 
         deleteBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            commandStack.doCommand(new Command() {
-                int selected = errorTable.getSelectionModel().getSelectedIndex();
-                WorldTableItem selectedItem = errorTable.getItems().get(selected);
-
-                @Override
-                public void execute() {
-                    deleteItem((errorTable.getItems().get(selected)).getIndex() + addition.get());
-                    errorTable.getItems().remove(selected);
-                    list.remove(selected);
-                    addition.getAndDecrement();
-                }
-
-                @Override
-                public void undo() {
-                    ((TableView)content).getItems().add((errorTable.getItems().get(selected)).getIndex() + addition.get(), selectedItem);
-                    errorTable.getItems().add(selected, selectedItem);
-                    list.add(selected, selectedItem);
-                    addition.getAndIncrement();
-                }
-            });
+            int selected = errorTable.getSelectionModel().getSelectedIndex();
+            WorldTableItem selectedItem = errorTable.getItems().get(selected);
+            deleteItem((errorTable.getItems().get(selected)).getIndex() + addition.get());
+            errorTable.getItems().remove(selected);
+            list.remove(selected);
+            addition.getAndDecrement();
         });
 
         deleteAllBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            commandStack.doCommand(new Command() {
-                @Override
-                public void execute() {
-                    for (WorldTableItem item : list) {
-                        errorTable.getItems().remove(0);
-                        deleteItem(item.getIndex() + addition.get());
-                        addition.getAndDecrement();
-                    }
-                }
-
-                @Override
-                public void undo() {
-
-                }
-            });
+            for (WorldTableItem item : list) {
+                errorTable.getItems().remove(0);
+                deleteItem(item.getIndex() + addition.get());
+                addition.getAndDecrement();
+            }
         });
 
         alert.showAndWait();
