@@ -1,75 +1,76 @@
->> master
-• Move Find/Replace pane to bottom instead of right side.
+>> 0.9.78
+* Move Find/Replace pane to bottom instead of right side.
+* Using '*' instead for changelog for encoding support.
 
 >> 0.9.77
-• Improved Start Page
-• Implemented Find/Replace feature
-• Verbose logging is now more 'verbose'
+* Improved Start Page
+* Implemented Find/Replace feature
+* Verbose logging is now more 'verbose'
 
 >> 0.9.76
-• Refactored entire Tab code.
-• Fixed bug with Link Checker that would cause an "Unknown" exception.
-• Types are now more modular, allowing more support for formats and configurations later.
-• Added a minimum width to the Link Checker results window.
-• Editing the Link Checker results now translates over to the main window, allowing you to fix your links before closing the dialog. 
+* Refactored entire Tab code.
+* Fixed bug with Link Checker that would cause an "Unknown" exception.
+* Types are now more modular, allowing more support for formats and configurations later.
+* Added a minimum width to the Link Checker results window.
+* Editing the Link Checker results now translates over to the main window, allowing you to fix your links before closing the dialog. 
 
 >> 0.9.75
-• Reorganized internal table code
-• Added "Dead Link Checker". This will iterate through every link in the table and list all the ones that do not work.
-• Added update checker
+* Reorganized internal table code
+* Added "Dead Link Checker". This will iterate through every link in the table and list all the ones that do not work.
+* Added update checker
 
 >> 0.9.74
-• Moved Toolbar to inside tab next to table
-• Fixed improper detection of unsaved content
-• Completely overhauled icons
+* Moved Toolbar to inside tab next to table
+* Fixed improper detection of unsaved content
+* Completely overhauled icons
 
 >> 0.9.73
-• Fixed Save corruption
-• Added type selection to New File
-• Moved Table controls to the sidebar, splitting them from the main controls
-• Simplified Dialog operations
-• Exceptions should now show up in their own fancy dialog
+* Fixed Save corruption
+* Added type selection to New File
+* Moved Table controls to the sidebar, splitting them from the main controls
+* Simplified Dialog operations
+* Exceptions should now show up in their own fancy dialog
 
 >> 0.9.72
-• Fixed bug where a file would have no visual indication it was saved.
-• Fixed issue with save graphics
-• Added support for the -i (input file) argument
+* Fixed bug where a file would have no visual indication it was saved.
+* Fixed issue with save graphics
+* Added support for the -i (input file) argument
 
 >> 0.9.71
-• The Interface has been completely rewritten
-• A single jar for all platforms is now used
-• Changed to a Table instead of a property list system
-• Ported to JavaFX instead of the previously used SWT library
-• Tweaks and bugfixes have been made to the internal read/write system.
+* The Interface has been completely rewritten
+* A single jar for all platforms is now used
+* Changed to a Table instead of a property list system
+* Ported to JavaFX instead of the previously used SWT library
+* Tweaks and bugfixes have been made to the internal read/write system.
 
 >> 0.9.64
-• Text fields are now disabled if nothing is selected
-• Opening a file will now automatically select the first item
-• Delete now works like intended
-• Adding new items will now properly get selected
-• Files unable to be opened no longer leave an empty tab
-• Closing tabs with unsaved changes now warns you of progress loss
-• Saving is now disabled if the file cannot be written to
-• Add, Delete, Move up, and Move down buttons are now "tool buttons"
+* Text fields are now disabled if nothing is selected
+* Opening a file will now automatically select the first item
+* Delete now works like intended
+* Adding new items will now properly get selected
+* Files unable to be opened no longer leave an empty tab
+* Closing tabs with unsaved changes now warns you of progress loss
+* Saving is now disabled if the file cannot be written to
+* Add, Delete, Move up, and Move down buttons are now "tool buttons"
 
 >> 0.9.57
-• Date on about dialog now shows build date, not year
-• Clicking new now simply adds a tab. This tab defaults to Avatars
-• Clicking save on a new tab will open the file dialog
-• Saving to a new location updates the tab data for that location
-• Added Windows x64 with bundles Jre download
+* Date on about dialog now shows build date, not year
+* Clicking new now simply adds a tab. This tab defaults to Avatars
+* Clicking save on a new tab will open the file dialog
+* Saving to a new location updates the tab data for that location
+* Added Windows x64 with bundles Jre download
 
 >> 0.9.51
-• Revamped About dialog
-• Fixed sizing and positioning of list buttons
-• Made the list thinner
-• Versioning system has changed (This is essentially 1.0b51)
-• Deleting the first item will no longer remove the index
-• Icon changed
+* Revamped About dialog
+* Fixed sizing and positioning of list buttons
+* Made the list thinner
+* Versioning system has changed (This is essentially 1.0b51)
+* Deleting the first item will no longer remove the index
+* Icon changed
 
 >> 0.9.45
-• Icons are now used
-• A save icon appears next to changed tabs
-• Added drag 'n' drop feature
-• Application will now warn you when closing with unsaved tabs
-• Better error handling
+* Icons are now used
+* A save icon appears next to changed tabs
+* Added drag 'n' drop feature
+* Application will now warn you when closing with unsaved tabs
+* Better error handling
