@@ -473,10 +473,23 @@ public class WorldsTab {
         labelColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
         labelColumn.setEditable(true);
         labelColumn.setOnEditCommit(t -> {
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
-            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getNewValue());
-            ((TableView)content).refresh();
-            setSaved(false);
+            commandStack.doCommand(new Command() {
+                @Override
+                public void execute() {
+                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
+                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getNewValue());
+                    ((TableView)content).refresh();
+                    setSaved(false);
+                }
+
+                @Override
+                public void undo() {
+                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getOldValue());
+                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getOldValue());
+                    ((TableView)content).refresh();
+                    setSaved(false);
+                }
+            });
         });
 
         TableColumn<WorldTableItem, String> valueColumn = new TableColumn<>("Value");
@@ -485,10 +498,23 @@ public class WorldsTab {
         valueColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
         valueColumn.setEditable(true);
         valueColumn.setOnEditCommit(t -> {
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
-            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getNewValue());
-            ((TableView)content).refresh();
-            setSaved(false);
+            commandStack.doCommand(new Command() {
+                @Override
+                public void execute() {
+                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
+                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getNewValue());
+                    ((TableView)content).refresh();
+                    setSaved(false);
+                }
+
+                @Override
+                public void undo() {
+                    t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getOldValue());
+                    ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getOldValue());
+                    ((TableView)content).refresh();
+                    setSaved(false);
+                }
+            });
         });
 
         for (WorldTableItem item : list) {
@@ -506,19 +532,44 @@ public class WorldsTab {
         alert.getDialogPane().setContent(vBox);
 
         deleteBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            int selected = errorTable.getSelectionModel().getSelectedIndex();
-            delValue((errorTable.getItems().get(selected)).getIndex() + addition.get());
-            errorTable.getItems().remove(selected);
-            list.remove(selected);
-            addition.getAndDecrement();
+            commandStack.doCommand(new Command() {
+                int selected = errorTable.getSelectionModel().getSelectedIndex();
+                WorldTableItem selectedItem = errorTable.getItems().get(selected);
+
+                @Override
+                public void execute() {
+                    deleteItem((errorTable.getItems().get(selected)).getIndex() + addition.get());
+                    errorTable.getItems().remove(selected);
+                    list.remove(selected);
+                    addition.getAndDecrement();
+                }
+
+                @Override
+                public void undo() {
+                    ((TableView)content).getItems().add((errorTable.getItems().get(selected)).getIndex() + addition.get(), selectedItem);
+                    errorTable.getItems().add(selected, selectedItem);
+                    list.add(selected, selectedItem);
+                    addition.getAndIncrement();
+                }
+            });
         });
 
         deleteAllBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            for (WorldTableItem item : list) {
-                errorTable.getItems().remove(0);
-                delValue(item.getIndex() + addition.get());
-                addition.getAndDecrement();
-            }
+            commandStack.doCommand(new Command() {
+                @Override
+                public void execute() {
+                    for (WorldTableItem item : list) {
+                        errorTable.getItems().remove(0);
+                        deleteItem(item.getIndex() + addition.get());
+                        addition.getAndDecrement();
+                    }
+                }
+
+                @Override
+                public void undo() {
+
+                }
+            });
         });
 
         alert.showAndWait();
@@ -548,6 +599,17 @@ public class WorldsTab {
         replText.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
         TextField replInput = new TextField();
 
+        Slider selSlider = new Slider(-1,1,0);
+        selSlider.setMajorTickUnit(1);
+        selSlider.setMinorTickCount(0);
+        selSlider.setSnapToTicks(true);
+        Text labelTxt = new Text("Label");
+        Text valueTxt = new Text("Value");
+
+        HBox.setHgrow(selSlider, Priority.ALWAYS);
+        HBox.setHgrow(labelTxt, Priority.ALWAYS);
+        HBox.setHgrow(valueTxt, Priority.ALWAYS);
+
         GridPane findBar = new GridPane();
 
         Button findButton = new Button("Find");
@@ -564,10 +626,16 @@ public class WorldsTab {
 
         Button replButton = new Button("Replace");
         replButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            WorldList item = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
-            item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-            ((TableView)content).refresh();
-            setSaved(false);
+                    WorldList item = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
+                    if (item != null) {
+                        if (selSlider.getValue() >= 0) {
+                            item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                        }
+                        if (selSlider.getValue() <= 0) {
+                            item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                        }
+                        ((TableView) content).refresh();
+                        setSaved(false);
         });
 
         Button replAllButton = new Button("Replace All");
@@ -576,8 +644,17 @@ public class WorldsTab {
                 WorldList item = (WorldList)((TableView)content).getItems().get(a);
                 if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
                     item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                    for (int a = 0; a < worldList.size(); a++) {
+                        WorldList item = (WorldList)((TableView)content).getItems().get(a);
+                        if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
+                            if (selSlider.getValue() >= 0) {
+                                item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                            }
+                            if (selSlider.getValue() <= 0) {
+                                item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                            }
+                        }
                 }
-            }
             ((TableView)content).refresh();
             setSaved(false);
         });
@@ -592,7 +669,8 @@ public class WorldsTab {
         findBar.add(replText, 0, 1);
         findBar.add(replInput, 1, 1);
 
-        findBar.add(btns, 0, 2);
+        findBar.add(new HBox(labelTxt, selSlider, valueTxt), 0, 2);
+        findBar.add(btns, 1, 2);
 
         GridPane.setHgrow(findInput, Priority.ALWAYS);
         GridPane.setHgrow(replInput, Priority.ALWAYS);

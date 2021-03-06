@@ -16,5 +16,6 @@ buildNumber.properties
 packr-conf/
 packr*.jar
 
-# Don't judge, this is my test file
-test.avatars
+# Don't judge, these are my test files
+*.avatars
+*.worldsmarks
