@@ -626,16 +626,13 @@ public class WorldsTab {
 
         Button replButton = new Button("Replace");
         replButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                    WorldList item = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
-                    if (item != null) {
-                        if (selSlider.getValue() >= 0) {
-                            item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                        }
-                        if (selSlider.getValue() <= 0) {
-                            item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
-                        }
-                        ((TableView) content).refresh();
-                        setSaved(false);
+            WorldList item = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
+            if (item != null) {
+                if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+            }
+            ((TableView) content).refresh();
+            setSaved(false);
         });
 
         Button replAllButton = new Button("Replace All");
@@ -647,14 +644,12 @@ public class WorldsTab {
                     for (int a = 0; a < worldList.size(); a++) {
                         WorldList item = (WorldList)((TableView)content).getItems().get(a);
                         if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
-                            if (selSlider.getValue() >= 0) {
-                                item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                            }
-                            if (selSlider.getValue() <= 0) {
-                                item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
-                            }
+                            if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                            if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
                         }
+                    }
                 }
+            }
             ((TableView)content).refresh();
             setSaved(false);
         });
