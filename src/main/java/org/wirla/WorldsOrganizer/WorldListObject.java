@@ -24,10 +24,18 @@ enum WorldsType {
     }
 }
 
-public class WorldListObject {
+public class WorldListObject implements Cloneable {
 
     public WorldsType classType = null;
     private List<WorldList> values = new ArrayList<>();
+
+    public WorldListObject clone() {
+        try {
+            return (WorldListObject) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
 
     WorldListObject() {
     }

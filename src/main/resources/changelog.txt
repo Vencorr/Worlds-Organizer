@@ -1,3 +1,7 @@
+>> 0.9.79
+* Improved moving efficiency
+* Undo/Redo added
+
 >> 0.9.78
 * Move Find/Replace pane to bottom instead of right side.
 * Using '*' instead for changelog for encoding support.

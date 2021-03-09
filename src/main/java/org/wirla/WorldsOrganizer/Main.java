@@ -100,6 +100,18 @@ public class Main extends Application {
 
 		menuBar.getItems().add(new Separator());
 
+		Button undoBtn = new Button();
+		undoBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/undo.svg"))));
+		undoBtn.setTooltip(new Tooltip("Undo"));
+		menuBar.getItems().add(undoBtn);
+
+		Button redoBtn = new Button();
+		redoBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/redo.svg"))));
+		redoBtn.setTooltip(new Tooltip("Redo"));
+		menuBar.getItems().add(redoBtn);
+
+		menuBar.getItems().add(new Separator());
+
 		Button quitBtn = new Button("Quit");
 		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/quit.svg"))));
 		menuBar.getItems().add(quitBtn);
@@ -152,6 +164,19 @@ public class Main extends Application {
 		saveAsFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			WorldsTab tableObj = tabs.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
 			saveFile(tableObj);
+		});
+
+		/* ---- */
+
+		undoBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			WorldsTab tableObj = tabs.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			tableObj.doUndo();
+
+		});
+
+		redoBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			WorldsTab tableObj = tabs.get(tabPane.getSelectionModel().getSelectedIndex() - 1);
+			tableObj.doRedo();
 		});
 
 		/* ---- */

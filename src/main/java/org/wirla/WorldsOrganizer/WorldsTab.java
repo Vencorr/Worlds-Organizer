@@ -1,6 +1,8 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -38,6 +40,8 @@ public class WorldsTab {
 
     WorldListObject worldList = new WorldListObject();
 
+    private CommandStack commandStack = new CommandStack();
+
     public WorldsTab() {
     }
 
@@ -65,7 +69,7 @@ public class WorldsTab {
             } else {
                 assert type != null;
                 worldList.classType = type;
-                worldList.add(addToList(type));
+                worldList.add(createItem(type));
             }
 
             Tab tab;
@@ -108,7 +112,7 @@ public class WorldsTab {
                 int tabIndex = Main.tabs.indexOf(this);
 
                 if (tabIndex >= 0) {
-                    this.addValue();
+                    this.addItem();
                     this.setFocus(((TableView)content).getItems().size() - 1);
 
                     Main.tabs.set(tabIndex, this);
@@ -125,7 +129,7 @@ public class WorldsTab {
 
                 if (tabIndex >= 0) {
                     int index = ((TableView)content).getSelectionModel().getFocusedIndex();
-                    this.delValue(index);
+                    this.deleteItem(index);
                     this.setFocus(index < ((TableView)content).getItems().size() ? index : index - 1);
 
                     Main.tabs.set(tabIndex, this);
@@ -297,8 +301,24 @@ public class WorldsTab {
             labelColumn.setSortable(false);
 
             labelColumn.setOnEditCommit(t -> {
-                t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
-                setSaved(false);
+                commandStack.doCommand(new Command() {
+                    final String oldValue = t.getOldValue();
+                    final String newValue = t.getNewValue();
+                    WorldList item = t.getTableView().getItems().get(t.getTablePosition().getRow());
+
+                    @Override
+                    public void execute() {
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(newValue);
+                        setSaved(false);
+                    }
+
+                    @Override
+                    public void undo() {
+                        item.setName(oldValue);
+                        ((TableView)content).refresh();
+                        setSaved(false);
+                    }
+                });
             });
 
             TableColumn<WorldList, String> valueColumn = new TableColumn<>("Value");
@@ -308,8 +328,25 @@ public class WorldsTab {
             valueColumn.setSortable(false);
 
             valueColumn.setOnEditCommit(t -> {
-                t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
-                setSaved(false);
+                commandStack.doCommand(new Command() {
+
+                    final String oldValue = t.getOldValue();
+                    final String newValue = t.getNewValue();
+                    WorldList item = t.getTableView().getItems().get(t.getTablePosition().getRow());
+
+                    @Override
+                    public void execute() {
+                        t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(newValue);
+                        setSaved(false);
+                    }
+
+                    @Override
+                    public void undo() {
+                        item.setValue(oldValue);
+                        ((TableView)content).refresh();
+                        setSaved(false);
+                    }
+                });
             });
 
             for (WorldList list : worldList.getValues()) {
@@ -330,36 +367,85 @@ public class WorldsTab {
         }
     }
 
-    public void addValue() {
+    public void addItem() {
         assert content instanceof TableView;
-        WorldList newData = addToList(worldList.classType);
 
-        worldList.add(newData);
-        ((TableView)content).getItems().add(newData);
+        commandStack.doCommand(new Command() {
 
-        setSaved(false);
+            WorldList newData;
+
+            @Override
+            public void execute() {
+                newData = createItem(worldList.classType);
+                worldList.add(newData);
+                ((TableView)content).getItems().add(newData);
+                setSaved(false);
+            }
+
+            @Override
+            public void undo() {
+                worldList.remove(newData);
+                ((TableView)content).getItems().remove(newData);
+                setSaved(false);
+            }
+        });
     }
 
-    public void delValue(int i) {
+    public void deleteItem(int i) {
         assert content instanceof TableView;
 
-        worldList.remove(i);
-        ((TableView)content).getItems().remove(i);
+        commandStack.doCommand(new Command() {
 
-        setSaved(false);
+            WorldList item = (WorldList)((TableView)content).getItems().get(i);
+            int index = i;
+
+            @Override
+            public void execute() {
+                worldList.remove(i);
+                ((TableView)content).getItems().remove(i);
+                setSaved(false);
+            }
+
+            @Override
+            public void undo() {
+                worldList.add(index, item);
+                ((TableView)content).getItems().add(index, item);
+                setSaved(false);
+            }
+        });
     }
 
-    public void moveValue(int i,int moveBy) {
+    public void moveValue(int i, int moveBy) {
         assert content instanceof TableView;
 
-        WorldList row = worldList.get(i);
+        commandStack.doCommand(new Command() {
 
-        worldList.remove(i);
-        ((TableView)content).getItems().remove(i);
-        worldList.add(i + moveBy, row);
-        ((TableView)content).getItems().add(i + moveBy, row);
+            WorldList item = (WorldList)((TableView)content).getItems().get(i);
+            WorldList rItem = (WorldList)((TableView)content).getItems().get(i + moveBy);
+            int index = i;
+            int moved = moveBy;
 
-        setSaved(false);
+            @Override
+            public void execute() {
+                doMove(i, rItem);
+                doMove(i + moveBy, item);
+                setSaved(false);
+            }
+
+            @Override
+            public void undo() {
+                doMove(index + moved, rItem);
+                doMove(index, item);
+                setSaved(false);
+            }
+
+            private void doMove(int i, WorldList o) {
+                ((TableView)content).getItems().set(i, o);
+                worldList.set(i, o);
+            }
+        });
+
+
     }
 
     public void setFocus(int i) {
@@ -431,7 +517,7 @@ public class WorldsTab {
         return !modified;
     }
 
-    private WorldList addToList(WorldsType type) {
+    public WorldList createItem(WorldsType type) {
         switch (type) {
             default:
                 return null;
@@ -451,8 +537,12 @@ public class WorldsTab {
         alert.setTitle("Link Checker Results");
         alert.setHeaderText("The followings links have been found to be dead: " + list.size() + " out of " + worldList.size());
 
-        Button deleteBtn = new Button("Delete");
+        Button deleteBtn = new Button();
+        deleteBtn.setTooltip(new Tooltip("Delete"));
+        deleteBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
         Button deleteAllBtn = new Button("Delete All");
+        deleteAllBtn.setTooltip(new Tooltip("Delete All"));
+        deleteAllBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete-all.svg"))));
 
         TableView<WorldTableItem> errorTable = new TableView<>();
         errorTable.setEditable(true);
@@ -473,10 +563,30 @@ public class WorldsTab {
         labelColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
         labelColumn.setEditable(true);
         labelColumn.setOnEditCommit(t -> {
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(t.getNewValue());
-            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setName(t.getNewValue());
-            ((TableView)content).refresh();
-            setSaved(false);
+            commandStack.doCommand(
+                    new Command() {
+
+                        String oldValue = t.getOldValue();
+                        String newValue = t.getNewValue();
+                        WorldList item = t.getTableView().getItems().get(t.getTablePosition().getRow());
+                        WorldList tableItem = ((WorldList) ((TableView) content).getItems().get(t.getRowValue().getIndex()));
+
+                        @Override
+                        public void execute() {
+                            item.setName(newValue);
+                            tableItem.setName(newValue);
+                            ((TableView) content).refresh();
+                            setSaved(false);
+                        }
+
+                        @Override
+                        public void undo() {
+                            item.setName(oldValue);
+                            tableItem.setName(oldValue);
+                            ((TableView) content).refresh();
+                            setSaved(false);
+                        }
+                    });
         });
 
         TableColumn<WorldTableItem, String> valueColumn = new TableColumn<>("Value");
@@ -485,10 +595,30 @@ public class WorldsTab {
         valueColumn.setCellFactory(TextFieldTableCell.<WorldTableItem>forTableColumn());
         valueColumn.setEditable(true);
         valueColumn.setOnEditCommit(t -> {
-            t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(t.getNewValue());
-            ((WorldList)((TableView)content).getItems().get(t.getRowValue().getIndex())).setValue(t.getNewValue());
-            ((TableView)content).refresh();
-            setSaved(false);
+            commandStack.doCommand(
+                    new Command() {
+
+                        String oldValue = t.getOldValue();
+                        String newValue = t.getNewValue();
+                        WorldList item = t.getTableView().getItems().get(t.getTablePosition().getRow());
+                        WorldList tableItem = ((WorldList) ((TableView) content).getItems().get(t.getRowValue().getIndex()));
+
+                        @Override
+                        public void execute() {
+                            item.setValue(newValue);
+                            tableItem.setValue(newValue);
+                            ((TableView) content).refresh();
+                            setSaved(false);
+                        }
+
+                        @Override
+                        public void undo() {
+                            item.setValue(oldValue);
+                            tableItem.setValue(oldValue);
+                            ((TableView) content).refresh();
+                            setSaved(false);
+                        }
+                    });
         });
 
         for (WorldTableItem item : list) {
@@ -505,20 +635,61 @@ public class WorldsTab {
 
         alert.getDialogPane().setContent(vBox);
 
-        deleteBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            int selected = errorTable.getSelectionModel().getSelectedIndex();
-            WorldTableItem selectedItem = errorTable.getItems().get(selected);
-            delValue((errorTable.getItems().get(selected)).getIndex() + addition.get());
-            errorTable.getItems().remove(selected);
-            list.remove(selected);
-            addition.getAndDecrement();
+        deleteBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> { commandStack.doCommand(
+            new Command() {
+
+                int selected = errorTable.getSelectionModel().getSelectedIndex();
+                int tableSel = errorTable.getItems().get(selected).getIndex();
+                WorldTableItem item = errorTable.getItems().get(selected);
+                int added = tableSel + addition.get();
+
+                @Override
+                public void execute() {
+                    worldList.remove(tableSel + addition.get());
+                    ((TableView)content).getItems().remove(tableSel + addition.get());
+
+                    errorTable.getItems().remove(selected);
+                    list.remove(selected);
+                    addition.getAndDecrement();
+                    setSaved(false);
+                }
+
+                @Override
+                public void undo() {
+                    worldList.add(added, item);
+                    ((TableView)content).getItems().add(added, item);
+
+                    errorTable.getItems().add(selected, item);
+                    list.add(selected, item);
+                    addition.getAndIncrement();
+                    setSaved(false);
+                }
+            });
         });
 
         deleteAllBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            for (WorldTableItem item : list) {
-                errorTable.getItems().remove(0);
-                delValue(item.getIndex() + addition.get());
-                addition.getAndDecrement();
+            Alert askSure = new Alert(Alert.AlertType.CONFIRMATION);
+            askSure.setTitle("Delete All?");
+            askSure.setHeaderText("Are you sure you want to delete all the items in this list?");
+            askSure.setContentText("You won't be able to undo this change!");
+
+            ButtonType delSureButton = new ButtonType("Discard Changes");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            askSure.getButtonTypes().setAll(delSureButton, buttonTypeCancel);
+
+            askSure.getDialogPane().setMinSize(200,200);
+            Optional<ButtonType> result = askSure.showAndWait();
+            if (result.get() == delSureButton) {
+                for (WorldTableItem item : list) {
+                    errorTable.getItems().remove(0);
+                    worldList.remove(item.getIndex() + addition.get());
+                    ((TableView) content).getItems().remove(item.getIndex() + addition.get());
+                    addition.getAndDecrement();
+                }
+                setSaved(false);
+            } else {
+                askSure.close();
             }
         });
 
@@ -576,26 +747,60 @@ public class WorldsTab {
 
         Button replButton = new Button("Replace");
         replButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            WorldList item = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
-            if (item != null) {
-                if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
-            }
-            ((TableView) content).refresh();
-            setSaved(false);
+            commandStack.doCommand(new Command() {
+
+                WorldList origItem;
+                WorldList item;
+                int index;
+
+                @Override
+                public void execute() {
+                    item = origItem = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
+                    index = ((TableView)content).getSelectionModel().getSelectedIndex();
+                    if (item != null) {
+                        if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                        if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                    }
+                    ((TableView) content).refresh();
+                    setSaved(false);
+                }
+
+                @Override
+                public void undo() {
+                    item = origItem;
+                    ((TableView) content).refresh();
+                    setSaved(false);
+                }
+            });
         });
 
         Button replAllButton = new Button("Replace All");
         replAllButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-            for (int a = 0; a < worldList.size(); a++) {
-                WorldList item = (WorldList)((TableView)content).getItems().get(a);
-                if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
-                    if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                    if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+            commandStack.doCommand(new Command() {
+
+                List<WorldList> original = new ArrayList<>();
+
+                @Override
+                public void execute() {
+                    original = ((TableView)content).getItems();
+                    for (int a = 0; a < worldList.size(); a++) {
+                        WorldList item = (WorldList)((TableView)content).getItems().get(a);
+                        if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
+                            if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                            if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                        }
+                    }
+                    ((TableView)content).refresh();
+                    setSaved(false);
                 }
-            }
-            ((TableView)content).refresh();
-            setSaved(false);
+
+                @Override
+                public void undo() {
+                    ((TableView)content).setItems((ObservableList) original);
+                    ((TableView) content).refresh();
+                    setSaved(false);
+                }
+            });
         });
 
         ButtonBar btns = new ButtonBar();
@@ -622,5 +827,14 @@ public class WorldsTab {
 
         return new VBox(findBar);
     }
-    
+
+    public void doUndo() {
+        if (commandStack.canUndo()) commandStack.undo();
+        else Console.sendOutput("Nothing to undo!");
+    }
+
+    public void doRedo() {
+        if (commandStack.canRedo()) commandStack.redo();
+        else Console.sendOutput("Nothing to redo!");
+    }
 }
