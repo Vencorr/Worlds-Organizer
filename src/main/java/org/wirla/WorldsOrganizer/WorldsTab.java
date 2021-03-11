@@ -780,16 +780,17 @@ public class WorldsTab {
         replAllButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             commandStack.doCommand(new Command() {
 
-                List<WorldList> original = new ArrayList<>();
+                final List<WorldTableItem> replaced = new ArrayList<>();
+                final double slider = selSlider.getValue();
 
                 @Override
                 public void execute() {
-                    original = ((TableView)content).getItems();
-                    for (int a = 0; a < worldList.size(); a++) {
-                        WorldList item = (WorldList)((TableView)content).getItems().get(a);
-                        if (worldList.get(a).getName().contains(findInput.getCharacters()) || worldList.get(a).getValue().contains(findInput.getCharacters())) {
+                    for (WorldList item : worldList.getValues()) {
+                        if (item.getName().contains(findInput.getCharacters()) || item.getValue().contains(findInput.getCharacters())) {
+                            WorldTableItem tableItem = new WorldTableItem(((TableView)content).getItems().indexOf(item), item.getName(), item.getValue());
                             if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
                             if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                            replaced.add(tableItem);
                         }
                     }
                     ((TableView)content).refresh();
@@ -798,7 +799,11 @@ public class WorldsTab {
 
                 @Override
                 public void undo() {
-                    ((TableView)content).setItems((ObservableList) original);
+                    for (WorldTableItem tableItem : replaced) {
+                        WorldList item = (WorldList)((TableView)content).getItems().get(tableItem.getIndex());
+                        if (slider >= 0) item.setValue(tableItem.getValue());
+                        if (slider <= 0) item.setName(tableItem.getName());
+                    }
                     ((TableView) content).refresh();
                     setSaved(false);
                 }
