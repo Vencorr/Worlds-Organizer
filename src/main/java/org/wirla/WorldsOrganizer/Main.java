@@ -36,6 +36,7 @@ public class Main extends Application {
 	public static Stage primaryStage;
 
 	public static void main(String[] args) {
+		boolean runs = false;
 		Console.sendOutput("Worlds Organizer v" + Console.getVersion());
 
 		// Iterating through the arguments
@@ -43,13 +44,16 @@ public class Main extends Application {
 		// and skip over values we are using for arguments.
 		for (int a = 0; a < args.length; a++) {
 			String arg = args[a];
+			if (runs) break;
 			switch (arg) {
 				default:
 					Console.sendOutput( arg + " is not a valid argument. Please use '-help' to see a list of options and arguments." );
+					runs = true;
 					break;
 				case "-v": case "--verbose":
 					debugMode = true;
 					Console.sendOutput("Verbose is enabled.", true);
+					runs = true;
 					break;
 				case "-i": case "--input":
 					try {
@@ -59,6 +63,7 @@ public class Main extends Application {
 					} catch (Exception e) {
 						Console.sendOutput("Invalid File!");
 					}
+					runs = true;
 					break;
 				case "-h": case "--help":
 					Console.getHelp();
