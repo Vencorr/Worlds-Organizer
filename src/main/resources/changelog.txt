@@ -1,9 +1,10 @@
 >> 0.9.80
 * Fixed a bug where "Replace All" would not undo.
 * Fixed an issue with undoing edited text where it would not update the view.
-* Icon upgrade: New File, Save As, Undo/Redo
+* Icon upgrade: New File, Save As, Undo/Redo, Link Check
 * Logo has been changed.
 * Fixed start page scaling
+* Loading of icons should now be more efficient.
 
 >> 0.9.79
 * Improved moving efficiency

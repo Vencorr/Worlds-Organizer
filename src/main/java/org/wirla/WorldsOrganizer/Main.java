@@ -271,7 +271,8 @@ public class Main extends Application {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Open File");
 			fileChooser.getExtensionFilters().addAll(
-					new FileChooser.ExtensionFilter("All Supported Formats", "*.avatars", "*.worldsmarks"),
+					new FileChooser.ExtensionFilter("All Files", "*"),
+					new FileChooser.ExtensionFilter("All Supported Formats", "*.avatars", "*.worldsmarks", "*.organizer-bkup"),
 					new FileChooser.ExtensionFilter("Gamma Avatars (*.avatars)", "*.avatars"),
 					new FileChooser.ExtensionFilter("Gamma WorldsMarks (*.worldsmarks)", "*.worldsmarks")
 			);
@@ -288,13 +289,11 @@ public class Main extends Application {
 			tabs.add(tableObj);
 
 			tabPane.getSelectionModel().select(tabPane.getTabs().size() - 1);
-		} else {
-			Console.sendOutput("FileDialog closed?", true);
 		}
 	}
 
-	void saveFile(WorldsTab table) {
-		saveFile(table, null);
+	void saveFile(WorldsTab tab) {
+		saveFile(tab, null);
 	}
 
 	void saveFile(WorldsTab tab, File file) {
@@ -329,6 +328,7 @@ public class Main extends Application {
 				Saver saver = new Saver(thisFile);
 				saver.save(tab.worldList);
 				tab.setSaved(true);
+				tab.update(thisFile);
 			} catch (IOException e) {
 				e.printStackTrace();
 				Dialog.showException(e);

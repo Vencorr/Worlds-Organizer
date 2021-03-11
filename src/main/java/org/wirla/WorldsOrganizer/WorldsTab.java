@@ -29,7 +29,7 @@ public class WorldsTab {
 
     File file;
 
-    Tab tab = null;
+    private Tab tab = null;
     Control content = null;
     Pane mainPane;
 
@@ -75,12 +75,11 @@ public class WorldsTab {
                 default:
                     tab = new Tab(); break;
                 case AVATAR: case WORLDSMARK:
-                    tab = new Tab(tabTitle(), getWorldList()); break;
+                    tab = new Tab(generateTitle(), getWorldList()); break;
             }
             this.tab = tab;
 
-            setIcon();
-            tab.setTooltip(new Tooltip(worldList.classType.name));
+            update();
 
             tab.setOnCloseRequest(event -> {
                 event.consume();
@@ -489,8 +488,8 @@ public class WorldsTab {
         }
     }
 
-    private void setIcon() {
-        switch (worldList.classType) {
+    private void setIcon(WorldsType type) {
+        switch (type) {
             default:
                 tab.setGraphic(new ImageView(AppIcon.unknownFile));
                 break;
@@ -503,13 +502,40 @@ public class WorldsTab {
         }
     }
 
+    public void update() {
+        if (file != null) tab.setTooltip(new Tooltip(file.getAbsolutePath()));
+        else tab.setTooltip(new Tooltip(worldList.classType.name));
+        tab.setText(generateTitle());
+        setIcon(worldList.classType);
+    }
+
+    public void update(File newFile) {
+        this.file = newFile;
+        update();
+    }
+
+    private String generateTitle() {
+        if (file != null) {
+            return file.getName();
+        } else {
+            switch (worldList.classType) {
+                default:
+                    return "Untitled";
+                case AVATAR:
+                    return "Untitled.avatars";
+                case WORLDSMARK:
+                    return "Untitled.worldsmarks";
+            }
+        }
+    }
+
     public void setSaved(boolean value) {
         if (!value) {
             modified = true;
             tab.setGraphic(new ImageView(AppIcon.saveFile));
         } else{
+            update();
             modified = false;
-            setIcon();
         }
     }
 
@@ -526,6 +552,16 @@ public class WorldsTab {
             case WORLDSMARK:
                 return new MarkObject("New Mark", "home:GroundZero/groundzero.world");
         }
+    }
+
+    public void doUndo() {
+        if (commandStack.canUndo()) commandStack.undo();
+        else Console.sendOutput("Nothing to undo!");
+    }
+
+    public void doRedo() {
+        if (commandStack.canRedo()) commandStack.redo();
+        else Console.sendOutput("Nothing to redo!");
     }
 
     public void showLinkResults(List<WorldTableItem> list) {
@@ -696,21 +732,6 @@ public class WorldsTab {
         alert.showAndWait();
     }
 
-    private String tabTitle() {
-        if (file != null) {
-            return file.getName();
-        } else {
-            switch (worldList.classType) {
-                default:
-                    return "Untitled";
-                case AVATAR:
-                    return "Untitled.avatars";
-                case WORLDSMARK:
-                    return "Untitled.worldsmarks";
-            }
-        }
-    }
-
     private VBox getFindPane() {
         Text findText = new Text("Find Text");
         findText.setFont(Font.font("Verdana", FontWeight.NORMAL, FontPosture.REGULAR, 12));
@@ -831,15 +852,5 @@ public class WorldsTab {
         VBox.setVgrow(findBar, Priority.ALWAYS);
 
         return new VBox(findBar);
-    }
-
-    public void doUndo() {
-        if (commandStack.canUndo()) commandStack.undo();
-        else Console.sendOutput("Nothing to undo!");
-    }
-
-    public void doRedo() {
-        if (commandStack.canRedo()) commandStack.redo();
-        else Console.sendOutput("Nothing to redo!");
     }
 }
