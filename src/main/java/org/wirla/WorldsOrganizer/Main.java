@@ -95,7 +95,7 @@ public class Main extends Application {
 		menuBar.getItems().add(saveFileBtn);
 
 		Button saveAsFileBtn = new Button("Save As");
-		saveAsFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+		saveAsFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save-as.svg"))));
 		menuBar.getItems().add(saveAsFileBtn);
 
 		menuBar.getItems().add(new Separator());
