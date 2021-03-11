@@ -60,20 +60,25 @@
      id="namedview1431"
      showgrid="false"
      inkscape:zoom="21.06589"
-     inkscape:cx="7.9033419"
-     inkscape:cy="12.001272"
+     inkscape:cx="7.3936876"
+     inkscape:cy="10.021491"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg1429"
      inkscape:document-rotation="0" />
   <path
-     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.02685px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="M 12.249493,1.6608275 12.222941,12.174792 17.759233,6.9951031 Z"
+     style="fill:#ff7f27;fill-opacity:1;stroke:#ff7f27;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 15.834684,3.0262905 15.813547,13.540265 21.062071,8.3585559 Z"
      id="path846" />
   <path
-     style="fill:none;stroke:#000000;stroke-width:3.08056;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="m 12.613966,6.1899799 c 0,0 -2.53658,0.1891169 -3.5594108,0.7135755 C 7.7586432,7.5680372 6.5386627,8.4446408 5.7419918,9.6210394 4.8873948,10.882976 4.333353,12.61639 4.4670545,14.434804 c 0.095152,1.294116 0.7296768,2.838338 1.6186871,3.816578 0.9463986,1.041389 2.7171512,2.137751 4.1597994,2.456097 1.451547,0.320308 4.059963,0.194825 5.698746,-0.475374 1.394871,-0.570449 2.381811,-1.52525 3.114622,-2.761657"
+     style="fill:none;fill-opacity:1;stroke:#ff7f27;stroke-width:3;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 15.428471,8.3845924 c 0,0 -2.762014,-0.020946 -4.184739,-0.021164 -4.6246329,-7.1e-4 -7.4555249,2.5500586 -7.5242139,5.7811216 -0.06297,2.961918 1.234197,5.917181 7.2433839,5.917181"
      id="path852"
-     sodipodi:nodetypes="cssssssc" />
+     sodipodi:nodetypes="cssc" />
+  <path
+     style="fill:none;fill-opacity:1;stroke:#ff7f27;stroke-width:3;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 15.4719,20.06015 0.294436,-0.0018"
+     id="path852-6"
+     sodipodi:nodetypes="cc" />
 </svg>

@@ -28,7 +28,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -43,26 +43,27 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1858"
-     inkscape:window-height="1048"
+     inkscape:window-width="1920"
+     inkscape:window-height="1019"
      id="namedview12"
      showgrid="false"
      inkscape:zoom="29.791667"
      inkscape:cx="8.4038763"
      inkscape:cy="12.343937"
-     inkscape:window-x="62"
-     inkscape:window-y="32"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg10" />
+     inkscape:current-layer="svg10"
+     inkscape:document-rotation="0" />
   <path
      d="M 14,2 4,1.9867403 4.0237516,22.025861 19.986455,22 20,8 Z"
      id="path2"
-     style="stroke-width:2;stroke-miterlimit:1;stroke-dasharray:none;stroke:#000000;stroke-opacity:1;fill:#ffffff;fill-opacity:1"
+     style="stroke-width:1;stroke-miterlimit:1;stroke-dasharray:none;stroke:#000000;stroke-opacity:1;fill:#ffffff;fill-opacity:1"
      sodipodi:nodetypes="cccccc" />
   <polyline
      points="14 2 14 8 20 8"
      id="polyline4"
-     style="stroke-width:2;stroke-miterlimit:1;stroke-dasharray:none;fill:none;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+     style="stroke-width:1;stroke-miterlimit:1;stroke-dasharray:none;fill:none;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
   <g
      id="g1271"
      style="stroke:#0d9b00;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.99000001"

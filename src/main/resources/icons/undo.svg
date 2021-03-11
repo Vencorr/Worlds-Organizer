@@ -28,6 +28,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,20 +60,25 @@
      id="namedview1431"
      showgrid="false"
      inkscape:zoom="21.06589"
-     inkscape:cx="7.9033419"
-     inkscape:cy="12.001272"
+     inkscape:cx="7.3936876"
+     inkscape:cy="10.021491"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg1429"
      inkscape:document-rotation="0" />
   <path
-     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-     d="M 11.538954,2.2055661 11.564135,12.719531 6.3136184,7.5398417 Z"
+     style="fill:#00a2e8;fill-opacity:1;stroke:#00a2e8;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 8.1507012,3.0262905 8.1718382,13.540265 2.9233142,8.3585559 Z"
      id="path846" />
   <path
-     style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="m 11.193294,6.7347185 c 0,0 2.405646,0.1891169 3.37568,0.7135755 1.229019,0.6644818 2.386026,1.5410854 3.141574,2.717484 0.810484,1.261937 1.335927,2.995351 1.209127,4.813765 -0.09024,1.294116 -0.692012,2.838338 -1.535133,3.816578 -0.897547,1.041389 -2.576896,2.137751 -3.945077,2.456097 -1.37662,0.320308 -3.8503935,0.194825 -5.4045855,-0.475374 -1.3228703,-0.570449 -2.2588657,-1.52525 -2.9538502,-2.761657"
+     style="fill:none;fill-opacity:1;stroke:#00a2e8;stroke-width:3;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 8.5569144,8.3845924 c 0,0 2.7620136,-0.020946 4.1847386,-0.021164 4.624633,-7.1e-4 7.455525,2.5500586 7.524214,5.7811216 0.06297,2.961918 -1.234197,5.917181 -7.243384,5.917181"
      id="path852"
-     sodipodi:nodetypes="cssssssc" />
+     sodipodi:nodetypes="cssc" />
+  <path
+     style="fill:none;fill-opacity:1;stroke:#00a2e8;stroke-width:3;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 8.5134856,20.06015 8.2190488,20.05832"
+     id="path852-6"
+     sodipodi:nodetypes="cc" />
 </svg>
