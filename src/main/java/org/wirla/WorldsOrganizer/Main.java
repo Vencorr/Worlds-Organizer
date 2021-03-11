@@ -72,7 +72,7 @@ public class Main extends Application {
 	public void start(Stage pStage) throws Exception {
 		primaryStage = pStage;
 		primaryStage.setTitle("Worlds Organizer v" + Console.getVersion());
-		primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("/icon.png")));
+		primaryStage.getIcons().add(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/logo.svg")));
 
 		primaryStage.setOnCloseRequest(a -> {
 			quit();
@@ -208,10 +208,12 @@ public class Main extends Application {
 
 	public Tab getStartPage() {
 		HBox mainBox = new HBox();
+		VBox leftV;
+		VBox rightV;
 
 		Console.sendOutput("Processing Start Page", true);
 
-		ImageView logoView = new ImageView(new Image(Main.class.getResourceAsStream("/logo.png")));
+		ImageView logoView = new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/logo.svg")));
 		Text nameTxt = new Text("Worlds Organizer v" + Console.getVersion());
 		nameTxt.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
 		Text buildTxt = new Text("Build Date: " + Console.getDate());
@@ -220,7 +222,9 @@ public class Main extends Application {
 		Text devTxt = new Text("Developed by Nicholas George");
 		devTxt.setFont(Font.font("Verdana", FontWeight.MEDIUM, FontPosture.REGULAR, 12));
 
-		VBox leftV = new VBox(logoView, nameTxt, buildTxt, devTxt);
+		leftV = new VBox(logoView, nameTxt, buildTxt, devTxt);
+		logoView.setPreserveRatio(true);
+		logoView.fitWidthProperty().bind(leftV.widthProperty().multiply(0.5));
 		leftV.setAlignment(Pos.CENTER);
 
 		Text changelogTitle = new Text("Changelogs");
@@ -231,9 +235,12 @@ public class Main extends Application {
 		changelog.setWrapText(true);
 
 		VBox.setVgrow(changelog, Priority.ALWAYS);
-		VBox rightV = new VBox(changelogTitle, changelog);
+		rightV = new VBox(changelogTitle, changelog);
 
-		HBox.setHgrow(leftV, Priority.ALWAYS);
+		leftV.maxWidthProperty().bind(mainBox.widthProperty().multiply(0.5));
+		rightV.maxWidthProperty().bind(mainBox.widthProperty().multiply(0.5));
+
+		HBox.setHgrow(leftV, Priority.SOMETIMES);
 		HBox.setHgrow(rightV, Priority.ALWAYS);
 		mainBox.getChildren().addAll(leftV, rightV);
 		return new Tab("Start Page", mainBox);
