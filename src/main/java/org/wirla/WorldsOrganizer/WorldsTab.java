@@ -1,8 +1,6 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -105,7 +103,7 @@ public class WorldsTab {
 
             Button addBtn = new Button();
             addBtn.setTooltip(new Tooltip("Add Value"));
-            addBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/plus.svg"))));
+            addBtn.setGraphic(new ImageView(AppIcon.add));
             toolBar.getItems().add(addBtn);
 
             addBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -121,7 +119,7 @@ public class WorldsTab {
 
             Button delBtn = new Button();
             delBtn.setTooltip(new Tooltip("Delete Value"));
-            delBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+            delBtn.setGraphic(new ImageView(AppIcon.remove));
             toolBar.getItems().add(delBtn);
 
             delBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -138,7 +136,7 @@ public class WorldsTab {
 
             Button mupBtn = new Button();
             mupBtn.setTooltip(new Tooltip("Move Value Up"));
-            mupBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/up.svg"))));
+            mupBtn.setGraphic(new ImageView(AppIcon.moveUp));
             toolBar.getItems().add(mupBtn);
 
             mupBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -155,7 +153,7 @@ public class WorldsTab {
 
             Button mdwBtn = new Button();
             mdwBtn.setTooltip(new Tooltip("Move Value Down"));
-            mdwBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/down.svg"))));
+            mdwBtn.setGraphic(new ImageView(AppIcon.moveDown));
             toolBar.getItems().add(mdwBtn);
 
             mdwBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -174,7 +172,7 @@ public class WorldsTab {
 
             Button findBtn = new Button();
             findBtn.setTooltip(new Tooltip("Find/Replace"));
-            findBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/find.svg"))));
+            findBtn.setGraphic(new ImageView(AppIcon.findReplace));
             toolBar.getItems().add(findBtn);
 
             VBox findingBox = getFindPane();
@@ -190,7 +188,7 @@ public class WorldsTab {
 
             Button checkBtn = new Button();
             checkBtn.setTooltip(new Tooltip("Link Checker"));
-            checkBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/link.svg"))));
+            checkBtn.setGraphic(new ImageView(AppIcon.linkCheck));
             toolBar.getItems().add(checkBtn);
 
             checkBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
@@ -494,13 +492,13 @@ public class WorldsTab {
     private void setIcon() {
         switch (worldList.classType) {
             default:
-                tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file.svg"))));
+                tab.setGraphic(new ImageView(AppIcon.unknownFile));
                 break;
             case AVATAR:
-                tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/avatar.svg"))));
+                tab.setGraphic(new ImageView(AppIcon.avatarFile));
                 break;
             case WORLDSMARK:
-                tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/mark.svg"))));
+                tab.setGraphic(new ImageView(AppIcon.markFile));
                 break;
         }
     }
@@ -508,7 +506,7 @@ public class WorldsTab {
     public void setSaved(boolean value) {
         if (!value) {
             modified = true;
-            tab.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+            tab.setGraphic(new ImageView(AppIcon.saveFile));
         } else{
             modified = false;
             setIcon();
@@ -541,10 +539,10 @@ public class WorldsTab {
 
         Button deleteBtn = new Button();
         deleteBtn.setTooltip(new Tooltip("Delete"));
-        deleteBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete.svg"))));
+        deleteBtn.setGraphic(new ImageView(AppIcon.remove));
         Button deleteAllBtn = new Button("Delete All");
         deleteAllBtn.setTooltip(new Tooltip("Delete All"));
-        deleteAllBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/delete-all.svg"))));
+        deleteAllBtn.setGraphic(new ImageView(AppIcon.removeAll));
 
         TableView<WorldTableItem> errorTable = new TableView<>();
         errorTable.setEditable(true);

@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -77,7 +76,7 @@ public class Main extends Application {
 	public void start(Stage pStage) throws Exception {
 		primaryStage = pStage;
 		primaryStage.setTitle("Worlds Organizer v" + Console.getVersion());
-		primaryStage.getIcons().add(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/logo.svg")));
+		primaryStage.getIcons().add(AppIcon.logo);
 
 		primaryStage.setOnCloseRequest(a -> {
 			quit();
@@ -88,37 +87,37 @@ public class Main extends Application {
 		ToolBar menuBar = new ToolBar();
 
 		Button newFileBtn = new Button("New");
-		newFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file-plus.svg"))));
+		newFileBtn.setGraphic(new ImageView(AppIcon.newFile));
 		menuBar.getItems().add(newFileBtn);
 
 		Button openFileBtn = new Button("Open");
-		openFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/folder.svg"))));
+		openFileBtn.setGraphic(new ImageView(AppIcon.openFile));
 		menuBar.getItems().add(openFileBtn);
 
 		Button saveFileBtn = new Button("Save");
-		saveFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"))));
+		saveFileBtn.setGraphic(new ImageView(AppIcon.saveFile));
 		menuBar.getItems().add(saveFileBtn);
 
 		Button saveAsFileBtn = new Button("Save As");
-		saveAsFileBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save-as.svg"))));
+		saveAsFileBtn.setGraphic(new ImageView(AppIcon.saveFileAs));
 		menuBar.getItems().add(saveAsFileBtn);
 
 		menuBar.getItems().add(new Separator());
 
 		Button undoBtn = new Button();
-		undoBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/undo.svg"))));
+		undoBtn.setGraphic(new ImageView(AppIcon.undo));
 		undoBtn.setTooltip(new Tooltip("Undo"));
 		menuBar.getItems().add(undoBtn);
 
 		Button redoBtn = new Button();
-		redoBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/redo.svg"))));
+		redoBtn.setGraphic(new ImageView(AppIcon.redo));
 		redoBtn.setTooltip(new Tooltip("Redo"));
 		menuBar.getItems().add(redoBtn);
 
 		menuBar.getItems().add(new Separator());
 
 		Button quitBtn = new Button("Quit");
-		quitBtn.setGraphic(new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/quit.svg"))));
+		quitBtn.setGraphic(new ImageView(AppIcon.quitApp));
 		menuBar.getItems().add(quitBtn);
 
 		// TabPane initialization
@@ -218,7 +217,7 @@ public class Main extends Application {
 
 		Console.sendOutput("Processing Start Page", true);
 
-		ImageView logoView = new ImageView(IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/logo.svg")));
+		ImageView logoView = new ImageView(AppIcon.logo);
 		Text nameTxt = new Text("Worlds Organizer v" + Console.getVersion());
 		nameTxt.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
 		Text buildTxt = new Text("Build Date: " + Console.getDate());
