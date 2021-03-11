@@ -309,6 +309,7 @@ public class WorldsTab {
                     @Override
                     public void execute() {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setName(newValue);
+                        ((TableView) content).refresh();
                         setSaved(false);
                     }
 
@@ -337,6 +338,7 @@ public class WorldsTab {
                     @Override
                     public void execute() {
                         t.getTableView().getItems().get(t.getTablePosition().getRow()).setValue(newValue);
+                        ((TableView) content).refresh();
                         setSaved(false);
                     }
 
