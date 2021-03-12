@@ -6,6 +6,8 @@ public class AppIcon {
 
     public static Image logo = IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/logo.svg"));
 
+    public static Image config = IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/conf.svg"));
+
     public static Image newFile = IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/file-plus.svg"));
     public static Image openFile = IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/folder.svg"));
     public static Image saveFile = IMGTranscoder.toFXImage(Main.class.getResourceAsStream("/icons/save.svg"));

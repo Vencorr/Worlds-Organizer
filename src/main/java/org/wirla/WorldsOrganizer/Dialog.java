@@ -23,6 +23,7 @@ public class Dialog {
         alert.setTitle("An Error Occurred");
         alert.setHeaderText(header);
         alert.setContentText(content);
+        alert.initOwner(Main.primaryStage);
 
         alert.getDialogPane().setMinSize(200,200);
         alert.showAndWait();
@@ -33,6 +34,7 @@ public class Dialog {
         alert.setTitle("Exception Dialog");
         alert.setHeaderText("An Exception was encountered.");
         alert.setContentText("Please file a bug report if this problem persists.");
+        alert.initOwner(Main.primaryStage);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -70,6 +72,7 @@ public class Dialog {
         dialog.setTitle("New File");
         dialog.setHeaderText("Select a type for the new file.");
         dialog.setContentText("Type:");
+        dialog.initOwner(Main.primaryStage);
 
         dialog.getDialogPane().setMinSize(200,200);
         Optional<String> result = dialog.showAndWait();
@@ -89,6 +92,7 @@ public class Dialog {
         alert.setTitle("Update Dialog");
         alert.setHeaderText("A new version is available to download.");
         alert.setContentText("There is a newer version available for download. Version v" + newVer.get() + " is newer than v" + Console.getVersion() + ".");
+        alert.initOwner(Main.primaryStage);
 
         ButtonType updateButton = new ButtonType("Update");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -122,6 +126,7 @@ public class Dialog {
         alert.setContentText(
                 "I" + " l" + "ov" + "e" + " yo" + "u," + "DO" + "SF" + "OX" + "!"
         );
+        alert.initOwner(Main.primaryStage);
 
         alert.getDialogPane().setMinSize(200,200);
         alert.showAndWait();

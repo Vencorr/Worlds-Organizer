@@ -4,7 +4,10 @@
 * Icon upgrade: New File, Save As, Undo/Redo, Link Check
 * Logo has been changed.
 * Fixed start page scaling
+* Add Options menu:
+    * Can disable certain functions
 * Loading of icons should now be more efficient.
+* Added basic theming
 
 >> 0.9.79
 * Improved moving efficiency

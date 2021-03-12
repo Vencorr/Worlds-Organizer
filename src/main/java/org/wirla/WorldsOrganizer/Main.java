@@ -1,6 +1,9 @@
 package org.wirla.WorldsOrganizer;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -27,6 +30,7 @@ import java.util.Scanner;
 public class Main extends Application {
 
 	static boolean debugMode = false;
+	static Configuration config;
 
 	static List<File> startFiles = new ArrayList<>();
 	static List<WorldsTab> tabs = new ArrayList<>();
@@ -69,11 +73,20 @@ public class Main extends Application {
 					break;
 			}
 		}
-		launch(args);
+		if (runs || args.length <= 0) launch(args);
 	}
 
 	@Override
 	public void start(Stage pStage) throws Exception {
+
+		try {
+			String fullPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+			config = new Configuration(new File((fullPath + "/config.json")));
+		} catch (IOException e) {
+			config = new Configuration();
+			e.printStackTrace();
+		}
+
 		primaryStage = pStage;
 		primaryStage.setTitle("Worlds Organizer v" + Console.getVersion());
 		primaryStage.getIcons().add(AppIcon.logo);
@@ -116,18 +129,26 @@ public class Main extends Application {
 
 		menuBar.getItems().add(new Separator());
 
+		Button confBtn = new Button();
+		confBtn.setTooltip(new Tooltip("Preferences"));
+		confBtn.setGraphic(new ImageView(AppIcon.config));
+		menuBar.getItems().add(confBtn);
+
 		Button quitBtn = new Button("Quit");
 		quitBtn.setGraphic(new ImageView(AppIcon.quitApp));
 		menuBar.getItems().add(quitBtn);
 
+		Console.sendOutput("Declared Elements.", true);
 		// TabPane initialization
 		tabPane = new TabPane();
 
+		Console.sendOutput("Initializing Start Page", true);
 		Tab startTab = getStartPage();
 		startTab.setClosable(false);
 
 		tabPane.getTabs().add(startTab);
 
+		Console.sendOutput("Assigning Events", true);
 		tabPane.addEventFilter(Tab.CLOSED_EVENT, f -> {
 			Console.sendOutput("Detected Tab Closed. Index " + (tabPane.getSelectionModel().getSelectedIndex() - 1) + ".", true);
 			tabs.remove(tabPane.getSelectionModel().getSelectedIndex() - 1);
@@ -135,6 +156,7 @@ public class Main extends Application {
 
 		VBox vBox = new VBox(menuBar, tabPane);
 		Console.sendOutput("Completed Base Window Initialization", true);
+		Scene scene = new Scene(vBox, 960, 600);
 
 		newFileBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			if (e.isShiftDown()) {
@@ -185,6 +207,79 @@ public class Main extends Application {
 
 		/* ---- */
 
+		confBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			Stage confStage = new Stage();
+			confStage.initOwner(primaryStage);
+			confStage.setTitle("Preferences");
+
+			Label confTitle = new Label("Preferences");
+
+			CheckBox updateCheck = new CheckBox("Check for updates");
+			updateCheck.setSelected(config.checkUpdate);
+			updateCheck.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+				config.checkUpdate = isSelected;
+			});
+			VBox.setVgrow(updateCheck, Priority.ALWAYS);
+
+			CheckBox backupCheck = new CheckBox("Attempt Backups");
+			backupCheck.setSelected(config.attemptBackup);
+			backupCheck.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+				config.attemptBackup = isSelected;
+			});
+			VBox.setVgrow(backupCheck, Priority.ALWAYS);
+
+			Label themeLabel = new Label("Theme: ");
+			HBox.setHgrow(themeLabel, Priority.SOMETIMES);
+
+			ObservableList<String> themeOptions =
+					FXCollections.observableArrayList(Configuration.themes);
+
+			ComboBox<String> themeSet = new ComboBox(themeOptions);
+			themeSet.getSelectionModel().select(config.theme);
+			HBox.setHgrow(themeSet, Priority.ALWAYS);
+
+			Button applyButton = new Button("Apply");
+			applyButton.setDefaultButton(true);
+			applyButton.addEventFilter(MouseEvent.MOUSE_CLICKED, a -> {
+				config.theme = themeSet.getSelectionModel().getSelectedItem();
+				config.write();
+				setTheme(scene);
+			});
+
+			Button okButton = new Button("Ok");
+			okButton.addEventFilter(MouseEvent.MOUSE_CLICKED, a -> {
+				config.theme = themeSet.getSelectionModel().getSelectedItem();
+				config.write();
+				setTheme(scene);
+				confStage.close();
+			});
+
+			Button cancelButton = new Button("Cancel");
+			cancelButton.setCancelButton(true);
+			cancelButton.addEventFilter(MouseEvent.MOUSE_CLICKED, a -> {
+				confStage.close();
+			});
+
+			HBox themeBox = new HBox(themeLabel, themeSet);
+			VBox confV = new VBox(updateCheck, backupCheck, themeBox);
+			VBox.setVgrow(confV, Priority.ALWAYS);
+
+			ButtonBar bBar = new ButtonBar();
+			bBar.getButtons().addAll(applyButton, okButton, cancelButton);
+			bBar.setPadding(new Insets(10, 10, 10, 10));
+
+			confV.setPadding(new Insets(10, 10, 10, 10));
+			confV.setSpacing(10);
+			confV.prefWidthProperty().bind(confStage.widthProperty());
+			confV.prefHeightProperty().bind(confStage.heightProperty());
+
+			confStage.setMinWidth(350);
+			confStage.setMinHeight(200);
+
+			confStage.setScene(new Scene(new VBox(confV, bBar), 350, 200));
+			confStage.show();
+		});
+
 		quitBtn.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 			e.consume();
 			quit();
@@ -192,7 +287,8 @@ public class Main extends Application {
 
 		VBox.setVgrow(tabPane, Priority.ALWAYS);
 
-		Scene scene = new Scene(vBox, 960, 600);
+		setTheme(scene);
+
 		Console.sendOutput("Scene Prepared.", true);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -207,7 +303,18 @@ public class Main extends Application {
 			Console.sendOutput("No start files to iterate through!", true);
 		}
 
-		update();
+		if (config.checkUpdate) update();
+	}
+
+	private void setTheme(Scene curScene) {
+		for (String theme : Configuration.themes) {
+			if (!theme.equals("default")) {
+				String th = theme + ".css";
+				curScene.getStylesheets().remove(th);
+			}
+		}
+
+		curScene.getStylesheets().add(config.theme + ".css");
 	}
 
 	public Tab getStartPage() {

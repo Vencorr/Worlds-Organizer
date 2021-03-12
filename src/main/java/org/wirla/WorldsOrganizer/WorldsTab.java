@@ -196,6 +196,7 @@ public class WorldsTab {
                 alert.setResizable(true);
                 alert.setTitle("Link Checker");
                 alert.setHeaderText("Checking Links...");
+                alert.initOwner(Main.primaryStage);
 
                 TableView<WorldTableItem> checkTable = new TableView<>();
                 checkTable.setEditable(false);
@@ -458,6 +459,7 @@ public class WorldsTab {
             alert.setTitle("Close Tab");
             alert.setHeaderText("Are you sure you want to close this tab?");
             alert.setContentText("You have unsaved changes. Closing now will lose your progress.");
+            alert.initOwner(Main.primaryStage);
 
             ButtonType dontSaveButton = new ButtonType("Discard Changes");
             ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -572,6 +574,7 @@ public class WorldsTab {
         alert.setResizable(true);
         alert.setTitle("Link Checker Results");
         alert.setHeaderText("The followings links have been found to be dead: " + list.size() + " out of " + worldList.size());
+        alert.initOwner(Main.primaryStage);
 
         Button deleteBtn = new Button();
         deleteBtn.setTooltip(new Tooltip("Delete"));

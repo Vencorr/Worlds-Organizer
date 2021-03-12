@@ -18,9 +18,9 @@ public class Saver {
 	Saver(File file) throws IOException {
 		Console.sendOutput("Initialized Saver", true);
 		this.file = file;
+		backupFile = new File(file.getAbsolutePath() + ".organizer-bkup");
 		try {
-			backupFile = new File(file.getAbsolutePath() + ".organizer-bkup");
-			if (file.exists()) {
+			if (file.exists() && !Main.config.attemptBackup) {
 				Console.sendOutput("File location already exists! Creating backup at " + backupFile.getAbsolutePath(), true);
 				Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(backupFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
 			}
@@ -59,7 +59,7 @@ public class Saver {
 			Console.sendOutput("Saved WorldList item to file: { name: '" + objects.get(i).getName() + "', value: '" + objects.get(i).getValue() + "' }", true);
 		}
 		writeString("END PERSISTER");
-		if (backupFile != null) backupFile.delete();
+		if (backupFile.exists() && Main.config.attemptBackup) backupFile.delete();
 	}
 
 	void writeString(String s) throws IOException {
