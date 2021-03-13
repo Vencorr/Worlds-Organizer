@@ -773,17 +773,20 @@ public class WorldsTab {
         replButton.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
             commandStack.doCommand(new Command() {
 
-                WorldList origItem;
-                WorldList item;
-                int index;
+                WorldList replaced;
+                final int index = ((TableView<WorldList>)content).getSelectionModel().getSelectedIndex();
+                final double slider = selSlider.getValue();
 
                 @Override
                 public void execute() {
-                    item = origItem = (WorldList)((TableView)content).getSelectionModel().getSelectedItem();
-                    index = ((TableView)content).getSelectionModel().getSelectedIndex();
-                    if (item != null) {
-                        if (selSlider.getValue() >= 0) item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
-                        if (selSlider.getValue() <= 0) item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                    WorldList item = ((TableView<WorldList>)content).getSelectionModel().getSelectedItem();
+                    if (item.getName().contains(findInput.getCharacters()) || item.getValue().contains(findInput.getCharacters())) {
+                        WorldTableItem tableItem = new WorldTableItem(((TableView) content).getItems().indexOf(item), item.getName(), item.getValue());
+                        if (selSlider.getValue() >= 0)
+                            item.setValue(item.getValue().replace(findInput.getCharacters(), replInput.getCharacters()));
+                        if (selSlider.getValue() <= 0)
+                            item.setName(item.getName().replace(findInput.getCharacters(), replInput.getCharacters()));
+                        replaced = tableItem;
                     }
                     ((TableView) content).refresh();
                     setSaved(false);
@@ -791,7 +794,9 @@ public class WorldsTab {
 
                 @Override
                 public void undo() {
-                    item = origItem;
+                    WorldList item = (WorldList)((TableView) content).getItems().get(index);
+                    if (slider >= 0) item.setValue(replaced.getValue());
+                    if (slider <= 0) item.setName(replaced.getName());
                     ((TableView) content).refresh();
                     setSaved(false);
                 }
