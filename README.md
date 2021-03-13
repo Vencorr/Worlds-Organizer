@@ -1,3 +1,6 @@
+# MOVED
+This git repository has been moved to https://wirlaburla.com/git/Wirlaburla/Worlds-Organizer
+
 [<img src="src/main/resources/logo.svg" width="250"/>]()
 
 # Worlds Organizer
