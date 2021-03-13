@@ -39,7 +39,7 @@ public class Main extends Application {
 	public static Stage primaryStage;
 
 	public static void main(String[] args) {
-		boolean runs = false;
+		boolean doRun = true;
 		Console.sendOutput("Worlds Organizer v" + Console.getVersion());
 
 		// Iterating through the arguments
@@ -47,33 +47,30 @@ public class Main extends Application {
 		// and skip over values we are using for arguments.
 		for (int a = 0; a < args.length; a++) {
 			String arg = args[a];
-			if (runs) break;
-			switch (arg) {
-				default:
-					Console.sendOutput( arg + " is not a valid argument. Please use '-help' to see a list of options and arguments." );
-					runs = true;
-					break;
-				case "-v": case "--verbose":
-					debugMode = true;
-					Console.sendOutput("Verbose is enabled.", true);
-					runs = true;
-					break;
-				case "-i": case "--input":
-					try {
-						File newFile = new File(args[a+1]);
-						startFiles.add(newFile);
-						a++;
-					} catch (Exception e) {
-						Console.sendOutput("Invalid File!");
-					}
-					runs = true;
-					break;
-				case "-h": case "--help":
-					Console.getHelp();
-					break;
+			if (arg.equals("-v") || arg.equals("--verbose")) {
+				debugMode = true;
+				Console.sendOutput("Verbose is enabled.", true);
+				break;
+			} else if (arg.equals("-i") || arg.equals("--input")) {
+				try {
+					File newFile = new File(args[a+1]);
+					startFiles.add(newFile);
+					a++;
+				} catch (Exception e) {
+					Console.sendOutput("Invalid Argument options! Use '-h' for help.");
+				}
+			} else if (arg.equals("-h") || arg.equals("--help")) {
+				doRun = false;
+				Console.getHelp();
+				break;
+			} else {
+				doRun = false;
+				Console.sendOutput( arg + " is not a valid argument. Please use '-help' to see a list of options and arguments." );
+				break;
 			}
 		}
-		if (runs || args.length <= 0) launch(args);
+
+		if (doRun) launch(args);
 	}
 
 	@Override
